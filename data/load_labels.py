@@ -59,7 +59,7 @@ def createLabels(all_labels, expected_dir):
             df = df.append({'path': file_name_relative, 'label': label, 'name': file_name_absolute}, ignore_index=True)
     return df, counter_not_found
 
-def getLabels():
+def loadLabels():
     if path.exists("../misc/train.csv") and path.exists("../misc/test.csv"):
         train = pd.read_csv(r'../misc/train.csv', index_col=[0])
         test = pd.read_csv(r'../misc/test.csv', index_col=[0])
@@ -78,6 +78,17 @@ def getLabels():
         print('!!NF TRAINTRAIN', nf_train)
         print('!!NF TESTTEST', nf_test)
 
-    return train, test
+    # return train, test
 
-getLabels()
+def checkClasses():
+    train = pd.read_csv(r'../misc/train.csv', index_col=[0])
+    test = pd.read_csv(r'../misc/test.csv', index_col=[0])
+
+    print('!!AA train', train['label'].value_counts(ascending=True).sort_index())
+    print('!!BB train', train['label'].nunique())
+
+    print('!!AA test', test['label'].value_counts(ascending=True).sort_index())
+    print('!!BB test', test['label'].nunique())
+
+# checkClasses()
+loadLabels()

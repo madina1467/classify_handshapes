@@ -1,22 +1,19 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from os import path
-
-from create_labels import createLabels
-
+from load_labels import loadLabels
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
-from data.const import IMG_SIZE
-
-
-def loadDatabase():
-
-    train, test = createLabels()
-
-    return create_generators(train, test, True)
+from const import IMG_SIZE
 
 
-def create_generators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
+def loadDatabase(visualize=False):
+    loadLabels()
+    train = pd.read_csv(r'../misc/train.csv',dtype=str, index_col=[0])
+    test = pd.read_csv(r'../misc/test.csv',dtype=str, index_col=[0])
+    return createGenerators(train, test, visualize)
+
+
+def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
 
     train_generator = ImageDataGenerator(
         rescale=1.0 / 255,
@@ -33,7 +30,7 @@ def create_generators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
     test_generator = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.25)
     # visualize image augmentations
     if visualize == True:
-        visualize_augmentations(train_generator, pd.concat([train, test]))
+        visualizeAugmentations(train_generator, pd.concat([train, test]))
 
     train_generator = train_generator.flow_from_dataframe(
         dataframe=train,
@@ -73,7 +70,7 @@ def create_generators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
 
 
 
-def visualize_augmentations(data_generator: ImageDataGenerator, df: pd.DataFrame):
+def visualizeAugmentations(data_generator: ImageDataGenerator, df: pd.DataFrame):
     """Visualizes the keras augmentations with matplotlib in 3x3 grid. This function is part of create_generators() and
     can be accessed from there.
 
@@ -118,4 +115,4 @@ def visualize_augmentations(data_generator: ImageDataGenerator, df: pd.DataFrame
     plt.close()
 
 
-train, val, test = loadDatabase()
+train, val, test = loadDatabase(visualize = True)

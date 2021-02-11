@@ -1,73 +1,55 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-from typing import Iterator, List, Union
-from datetime import datetime
-# from tensorflow.python.keras.callbacks import History
-from tensorflow.python.keras.engine.training import Model
-from tensorflow.keras.callbacks import History
-from tensorflow.python.keras.callbacks import TensorBoard, EarlyStopping, ModelCheckpoint
+import tensorflow as tf
+from tensorflow.keras import layers, models, Model
+from efficientnet.keras import EfficientNetB5
+from tensorflow.keras.utils import plot_model
+
+from data.const import IMG_SIZE, NUM_CLASSES
+from data.dataset import loadDatabase
+from model_func import run_model, plot_results
 
 
-def run_model(
-    model_name: str,
-    model_function: Model,
-    lr: float, n_epochs, n_workers,
-    train_generator: Iterator,
-    validation_generator: Iterator,
-    test_generator: Iterator,
-) -> History:
+def build_model(model_name) -> Model:
 
-    callbacks = get_callbacks(model_name)
-    model = model_function
+    inputs = layers.Input(shape=(IMG_SIZE, IMG_SIZE, 3))
+    # x = img_augmentation(inputs)
+    model = EfficientNetB5(include_top=False, input_tensor=inputs, weights="imagenet")
 
-    history = model.fit(
-        train_generator,
-        epochs=n_epochs, 
-        validation_data=validation_generator,
-        callbacks=callbacks,
-        workers=n_workers # adjust this according to the number of CPU cores of your machine
+    # Freeze the pretrained weights
+    model.trainable = False
+
+    # Rebuild top
+    x = layers.GlobalAveragePooling2D(name="avg_pool")(model.output)
+    x = layers.BatchNormalization()(x)
+
+    top_dropout_rate = 0.2
+    x = layers.Dropout(top_dropout_rate, name="top_dropout")(x)
+    outputs = layers.Dense(NUM_CLASSES, activation="softmax", name="pred")(x)
+
+    model.summary()
+    plot_model(model, to_file=model_name + ".jpg", show_shapes=True)
+
+    # Compile
+    model = tf.keras.Model(inputs, outputs, name="EfficientNet")
+    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-2)
+    model.compile(
+        optimizer=optimizer, loss="categorical_crossentropy", metrics=["accuracy"]
+    )
+    return model
+
+def run():
+    train_generator, validation_generator, test_generator = loadDatabase(visualize=False)
+
+    eff_net_history = run_model(
+        model_name="eff_net_b5_imagenet",
+        model_function=build_model("eff_net_b5_imagenet"),
+        lr=0.5, n_epochs=100, n_workers=10,
+        train_generator=train_generator,
+        validation_generator=validation_generator,
+        test_generator=test_generator,
     )
 
-    model.evaluate(
-        test_generator,
-        callbacks=callbacks,
-    )
-    return history  # type: ignore
+    plot_results(eff_net_history)
+
+run()
 
 
-def plot_results(model_history_eff_net: History):
-    plt.plot(model_history_eff_net.history["accuracy"])
-    plt.plot(model_history_eff_net.history["val_accuracy"])
-    plt.title("model accuracy")
-    plt.ylabel("accuracy")
-    plt.xlabel("epoch")
-    plt.legend(["train", "validation"], loc="upper left")
-    plt.savefig("training_validation.png")
-    plt.show()
-
-
-def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, ModelCheckpoint]]:
-
-    logdir = (
-        "logs/scalars/" + model_name + "_" + datetime.now().strftime("%Y%m%d-%H%M%S")
-    )  # create a folder for each model.
-    tensorboard_callback = TensorBoard(log_dir=logdir)
-    # use tensorboard --logdir logs/scalars in your command line to startup tensorboard with the correct logs
-
-    early_stopping_callback = EarlyStopping(
-        monitor="val_accuracy",
-        patience=10,  # amount of epochs  with improvements worse than 1% until the model stops
-        verbose=2,
-        mode="max",
-        restore_best_weights=True,  # restore the best model with the lowest validation error
-    )
-
-    model_checkpoint_callback = ModelCheckpoint(
-        "./data/models/" + model_name,
-        monitor="val_accuracy",
-        verbose=0,
-        save_best_only=True,  # save the best model
-        mode="max",
-        save_freq="epoch",  # save every epoch
-    )  # saving eff_net takes quite a bit of time
-    return [tensorboard_callback, early_stopping_callback, model_checkpoint_callback]
