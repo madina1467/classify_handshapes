@@ -23,6 +23,7 @@ def getAllAnnotations():
         train = pd.read_csv(r'../misc/all_train.csv', index_col=[0])
         test = pd.read_csv(r'../misc/all_test.csv', index_col=[0])
     else:
+        print('getAllAnnotations(): Start reading train/test files')
         train = pd.read_csv(TRAIN_PATH + '1miohands-v2-trainingalignment.txt', sep=" ", header=None, names=["path", "label"])
         train.path = train.path.apply(
             lambda x: x.replace('/work/cv2/koller/features/danish_nz_ph2014/hand.20151016/data/joint/',
@@ -31,6 +32,8 @@ def getAllAnnotations():
         test = pd.read_csv(TEST_PATH + '3359-ph2014-MS-handshape-annotations.txt', sep=" ", header=None, names=["path", "label"])
         test.path = test.path.apply(lambda x: x.replace('images/', TEST_PATH))
         test.label = test.label.apply(lambda x: getCorrectID(x))
+
+        print('getAllAnnotations(): End reading train/test files')
 
         train.to_csv(r'../misc/all_train.csv')
         test.to_csv(r'../misc/all_test.csv')
@@ -61,10 +64,13 @@ def getLabels():
         train = pd.read_csv(r'../misc/train.csv', index_col=[0])
         test = pd.read_csv(r'../misc/test.csv', index_col=[0])
     else:
+        print('getLabels(): Starting creating new train/test files')
         all_train, all_test = getAllAnnotations()
 
         train, nf_train = createLabels(all_train, TRAIN_PATH)
         test, nf_test = createLabels(all_test, TEST_PATH)
+
+        print('getLabels(): End of creating new train/test files')
 
         train.to_csv(r'../misc/train.csv')
         test.to_csv(r'../misc/test.csv')
