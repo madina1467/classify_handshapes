@@ -1,10 +1,14 @@
 import tensorflow as tf
-from tensorflow.keras import layers, models, Model
-from efficientnet.keras import EfficientNetB5
-from tensorflow.keras.utils import plot_model
+from keras import layers, Model
+from keras.utils import plot_model
 
-from data.const import IMG_SIZE, NUM_CLASSES
+from efficientnet.keras import EfficientNetB5
+import sys
+
+
+sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.dataset import loadDatabase
+from data.const import IMG_SIZE, NUM_CLASSES
 from model_func import run_model, plot_results
 
 
@@ -37,7 +41,7 @@ def build_model(model_name) -> Model:
     return model
 
 def run():
-    train_generator, validation_generator, test_generator = loadDatabase(visualize=False)
+    train_generator, validation_generator, test_generator = loadDatabase(False)
 
     eff_net_history = run_model(
         model_name="eff_net_b5_imagenet",
@@ -50,6 +54,7 @@ def run():
 
     plot_results(eff_net_history)
 
-run()
+if __name__ == '__main__':
+    run()
 
 

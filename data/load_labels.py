@@ -3,7 +3,9 @@ import glob
 import os
 from os import path
 
-from const import TRAIN_PATH, TEST_PATH
+import sys
+sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
+from data.const import TRAIN_PATH, TEST_PATH
 
 def findFiles(path, rec=False): return glob.glob(path,recursive=rec)
 

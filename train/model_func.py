@@ -2,10 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from typing import Iterator, List, Union
 from datetime import datetime
-# from tensorflow.python.keras.callbacks import History
-from tensorflow.python.keras.engine.training import Model
-from tensorflow.keras.callbacks import History
-from tensorflow.python.keras.callbacks import TensorBoard, EarlyStopping, ModelCheckpoint
+from keras import Model
+from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
 
 
 def run_model(

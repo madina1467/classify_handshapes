@@ -1,9 +1,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from os import path
-from load_labels import loadLabels
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from const import IMG_SIZE
+import sys
+
+from keras.preprocessing.image import ImageDataGenerator
+
+sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
+from data.load_labels import loadLabels
+
+from data.const import IMG_SIZE
 
 
 def loadDatabase(visualize=False):
@@ -115,4 +120,4 @@ def visualizeAugmentations(data_generator: ImageDataGenerator, df: pd.DataFrame)
     plt.close()
 
 
-train, val, test = loadDatabase(visualize = True)
+train, val, test = loadDatabase(True)
