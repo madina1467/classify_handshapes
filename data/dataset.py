@@ -7,8 +7,7 @@ from keras.preprocessing.image import ImageDataGenerator
 
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.load_labels import loadLabels
-
-from data.const import IMG_SIZE
+from data.const import IMG_SIZE, BATCH_SIZE
 
 
 def loadDatabase(visualize=False):
@@ -49,7 +48,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
         shuffle=True,
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=128, # increase or decrease to fit your GPU
+        batch_size=BATCH_SIZE,
     )
 
     validation_generator = validation_generator.flow_from_dataframe(
@@ -60,7 +59,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
         shuffle=True,
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=128,
+        batch_size=BATCH_SIZE,
     )
     test_generator = test_generator.flow_from_dataframe(
         dataframe=test,
@@ -69,7 +68,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
         shuffle=False,
         class_mode=None,
         target_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=128,
+        batch_size=BATCH_SIZE,
     )
     return train_generator, validation_generator, test_generator
 

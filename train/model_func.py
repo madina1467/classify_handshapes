@@ -4,6 +4,9 @@ from typing import Iterator, List, Union
 from datetime import datetime
 from keras import Model
 from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
+import sys
+sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
+from data.const import BATCH_SIZE
 
 
 def run_model(
@@ -18,12 +21,14 @@ def run_model(
     callbacks = get_callbacks(model_name)
     model = model_function
 
-    history = model.fit(
+    history = model.fit_generator(
         train_generator,
         epochs=n_epochs, 
         validation_data=validation_generator,
         callbacks=callbacks,
-        workers=n_workers # adjust this according to the number of CPU cores of your machine
+        steps_per_epoch=len(train_generator) / BATCH_SIZE,
+        validation_steps=len(validation_generator) / BATCH_SIZE,
+        workers=n_workers # TODO adjust this according to the number of CPU cores of your machine
     )
 
     model.evaluate(
@@ -66,6 +71,7 @@ def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, Mod
         verbose=0,
         save_best_only=True,  # save the best model
         mode="max",
-        save_freq="epoch",  # save every epoch
+        save_weights_only=False,
+        # save every epoch
     )  # saving eff_net takes quite a bit of time
     return [tensorboard_callback, early_stopping_callback, model_checkpoint_callback]

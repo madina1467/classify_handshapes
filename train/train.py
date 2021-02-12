@@ -1,11 +1,9 @@
+import keras
 import tensorflow as tf
 from keras import layers, Model
 from keras.utils import plot_model
-
 from efficientnet.keras import EfficientNetB5
 import sys
-
-
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.dataset import loadDatabase
 from data.const import IMG_SIZE, NUM_CLASSES
@@ -33,8 +31,8 @@ def build_model(model_name) -> Model:
     plot_model(model, to_file=model_name + ".jpg", show_shapes=True)
 
     # Compile
-    model = tf.keras.Model(inputs, outputs, name="EfficientNet")
-    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-2)
+    model = keras.Model(inputs, outputs, name="EfficientNet")
+    optimizer = keras.optimizers.Adam(lr=1e-2)
     model.compile(
         optimizer=optimizer, loss="categorical_crossentropy", metrics=["accuracy"]
     )
