@@ -12,6 +12,9 @@ misc/train.csv
 misc/all_train.csv
 misc/all_test.csv
 
+train/logs/
+train/models/
+
 # Distribution / packaging
 .Python
 build/

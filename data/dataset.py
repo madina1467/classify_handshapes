@@ -33,8 +33,8 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
     validation_generator = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.25)  # except for rescaling, no augmentations are needed for validation and testing generators
     test_generator = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.25)
     # visualize image augmentations
-    if visualize == True:
-        visualizeAugmentations(train_generator, pd.concat([train, test]))
+    # if visualize == True:
+    #     visualizeAugmentations(train_generator, pd.concat([train, test]))
 
     train_generator = train_generator.flow_from_dataframe(
         dataframe=train,
@@ -64,9 +64,9 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
     test_generator = test_generator.flow_from_dataframe(
         dataframe=test,
         x_col="path",
-        y_col=None,
+        y_col="label",
         shuffle=False,
-        class_mode=None,
+        class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
     )
