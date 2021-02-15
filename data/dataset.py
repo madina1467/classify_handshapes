@@ -15,7 +15,11 @@ def loadDatabase(visualize=False):
     loadLabels()
     train = pd.read_csv(r'../misc/train.csv',dtype=str, index_col=[0])
     test = pd.read_csv(r'../misc/test.csv',dtype=str, index_col=[0])
-    return createGenerators(train, test, visualize)
+
+    train_labeled = train[train.label != 0]
+    train_unlabeled = train[train.label == 0]
+
+    return createGenerators(train_labeled, test, visualize)
 
 
 def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
@@ -39,7 +43,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
 
 
     # classes = np.arange(0, 60, 1).tolist()
-    classes = [str(x) for x in np.arange(0, 60, 1).tolist()]
+    classes = [str(x) for x in np.arange(1, 61, 1).tolist()]
 
     train_generator = train_generator.flow_from_dataframe(
         dataframe=train,

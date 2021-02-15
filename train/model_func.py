@@ -144,7 +144,7 @@ def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, Mod
     model_checkpoint_callback = ModelCheckpoint(
         'models/' + model_name + '_weights_epoch-{epoch:02d}_val_loss-{val_loss:.2f}.hdf5',
         monitor='val_loss',
-        verbose=0,
+        verbose=1,
         save_best_only=False,  # TODO CHECK TRUE later, save the best model
         mode='auto',
         save_weights_only=False,
