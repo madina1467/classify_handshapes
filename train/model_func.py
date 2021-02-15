@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from typing import Iterator, List, Union
 from datetime import datetime
@@ -51,11 +52,23 @@ def test_model(file_name, test_generator: Iterator):
     # print('test_loss: ', test_loss, ', test_acc: ', test_acc)
 
     predictions = model.predict_generator(test_generator,steps = len(test_generator) // BATCH_SIZE )
-    # print('preds_test', preds_test.shape, preds_test_fold.shape, preds_test_fold)
+
+    # preds_test = np.zeros((len(test_generator), test_generator.shape[1]), dtype=np.float)
+    # print('preds_test', predictions.shape, preds_test_fold.shape, predictions)
+
     # print('sum:', sum(preds_test_fold[1]))
     # preds = predictions.round(decimals=2)
     # for p in preds:
     #     print(p)
+    test_labels = test_generator.classes
+    y_pred = np.argmax(predictions, axis=-1)
+    print('test_labels: ', len(test_labels), 'y_pred: ', y_pred.shape)
+    # print(classification_report(test_labels, y_pred))
+    print('AAAAAA')
+
+    print('test_generator[1]: ', len(test_generator), 'predictions: ', len(predictions))
+    # print(classification_report(test_generator[2], predictions))
+
     # print(classification_report(test_generator.argmax(axis=1), predictions.argmax(axis=1), target_names=list(range(0, 60))))
 
 def plot_results(model_history_eff_net: History):
