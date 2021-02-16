@@ -44,18 +44,16 @@ def test_model(file_name, test_generator: Iterator):
     #  model: Model,
     model = load_model('models/'+file_name)
     # model.load_weights('models/'+file_name)
-
-    test_loss, test_acc = model.evaluate_generator(
-        test_generator, len(test_generator) // BATCH_SIZE,
-    )
-    print('test_loss: ', test_loss, ', test_acc: ', test_acc)
+    evaluation = model.evaluate_generator(
+        test_generator, len(test_generator) // BATCH_SIZE)
+    plot_test_results(model, evaluation)
 
     # ValueError: Error when checking target: expected pred to have shape (51,) but got array with shape (45,)
     # result = loaded_model.predict(test_image/255)
 
 
     #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    # pred = model.predict_generator(test_generator, steps=len(test_generator) // BATCH_SIZE, verbose=1)
+    # pred = model.predict_generator(test_generator, steps=len(test_generator) // BATCH_SIZE, verbose=1, multi_processing=False)
     #
     # preds_cls_idx = pred.argmax(axis=-1)
     # idx_to_cls = {v: k for k, v in test_generator.class_indices.items()}
@@ -113,11 +111,20 @@ def test_model(file_name, test_generator: Iterator):
     #
     # print(cm)
 
+def plot_test_results(model: Model, evaluation):
+    key2name = {'acc': 'Accuracy', 'loss': 'Loss',
+                'val_acc': 'Validation Accuracy', 'val_loss': 'Validation Loss'}
+    results = []
+    for i, key in enumerate(model.metrics_names):
+        results.append('%s = %.2f' % (key2name[key], evaluation[i]))
+    print(", ".join(results))
 
 
 def plot_results(model_history_eff_net: History):
-    plt.plot(model_history_eff_net.history["accuracy"])
-    plt.plot(model_history_eff_net.history["val_accuracy"])
+    plt.plot(model_history_eff_net.history["acc"])
+    plt.plot(model_history_eff_net.history["val_acc"])
+    # key2name = {'acc':'Accuracy', 'loss':'Loss',
+    #     'val_acc':'Validation Accuracy', 'val_loss':'Validation Loss'}
     plt.title("model accuracy")
     plt.ylabel("accuracy")
     plt.xlabel("epoch")
@@ -142,8 +149,8 @@ def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, Mod
     )
     # weights.{epoch:02d}-{val_loss:.2f}.hdf5   #_{epoch:02d}.ckpt
     model_checkpoint_callback = ModelCheckpoint(
-        'models/' + model_name + '_weights_epoch-{epoch:02d}_val_loss-{val_loss:.2f}.hdf5',
-        monitor='val_loss',
+        'models/' + model_name + '_weights_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5',
+        monitor='val_loss',# acc, val_acc, loss
         verbose=1,
         save_best_only=False,  # TODO CHECK TRUE later, save the best model
         mode='auto',
