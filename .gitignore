@@ -14,6 +14,8 @@ misc/all_test.csv
 
 train/logs/
 train/models/
+train/results/
+train/work/
 
 # Distribution / packaging
 .Python

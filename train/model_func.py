@@ -7,14 +7,16 @@ from keras import Model
 from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
 from keras.models import load_model
 import sys
+import dill as pickle
 from sklearn.metrics import classification_report, confusion_matrix
 
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
-from data.const import BATCH_SIZE, SAVE_PERIOD
+from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH
 
 
 def run_model(
         model_name: str,
+        hist_path:str,
         model_function: Model,
         n_epochs, n_workers,
         train_generator: Iterator,
@@ -37,6 +39,9 @@ def run_model(
     model.evaluate_generator(
         test_generator, len(test_generator) // BATCH_SIZE,
     )
+
+    save_history(hist_path, history)
+
     return history  # type: ignore
 
 
@@ -47,6 +52,7 @@ def test_model(file_name, test_generator: Iterator):
     evaluation = model.evaluate_generator(
         test_generator, len(test_generator) // BATCH_SIZE)
     plot_test_results(model, evaluation)
+
 
     # ValueError: Error when checking target: expected pred to have shape (51,) but got array with shape (45,)
     # result = loaded_model.predict(test_image/255)
@@ -132,10 +138,33 @@ def plot_results(model_history_eff_net: History):
     plt.savefig("training_validation.png")
     plt.show()
 
+def check_history(hist_path):
+    with open(hist_path, 'rb') as f:
+        hist = pickle.load(f)
+
+    key2name = {'acc': 'Accuracy', 'loss': 'Loss',
+                'val_acc': 'Validation Accuracy', 'val_loss': 'Validation Loss'}
+
+    fig = plt.figure()
+
+    things = ['acc', 'loss', 'val_acc', 'val_loss']
+    for i, thing in enumerate(things):
+        trace = hist[thing]
+        plt.subplot(2, 2, i + 1)
+        plt.plot(range(len(trace)), trace)
+        plt.title(key2name[thing])
+
+    fig.set_tight_layout(True)
+    fig.savefig(PLOT_PATH+'.png')
+
+def save_history(hist_path, hist):
+    with open(hist_path, 'wb') as f:
+        pickle.dump(hist.history, f)
 
 def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, ModelCheckpoint]]:
     logdir = (
-            'logs/scalars/' + model_name + "_" + datetime.now().strftime("%Y%m%d-%H%M%S")
+            LOG_PATH
+            # 'logs/scalars/' + model_name + "_" + datetime.now().strftime("%Y%m%d-%H%M%S")
     )  # create a folder for each model.
     tensorboard_callback = TensorBoard(log_dir=logdir)
     # use tensorboard --logdir logs/scalars in your command line to startup tensorboard with the correct logs
@@ -149,10 +178,11 @@ def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, Mod
     )
     # weights.{epoch:02d}-{val_loss:.2f}.hdf5   #_{epoch:02d}.ckpt
     model_checkpoint_callback = ModelCheckpoint(
-        'models/' + model_name + '_weights_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5',
+        MODEL_PATH,
+        # 'models/' + model_name + '_weights_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5',
         monitor='val_loss',# acc, val_acc, loss
         verbose=1,
-        save_best_only=False,  # TODO CHECK TRUE later, save the best model
+        save_best_only=True,  # TODO CHECK TRUE later, save the best model
         mode='auto',
         save_weights_only=False,
         period=SAVE_PERIOD  # save every SAVE_PERIOD epoch

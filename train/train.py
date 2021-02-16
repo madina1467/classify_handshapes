@@ -7,8 +7,8 @@ import sys
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.dataset import loadDatabase
 from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, \
-    NUM_CLASSES_TEST
-from model_func import run_model, plot_results, test_model
+    NUM_CLASSES_TEST, HISTORY_NAME, HIST_PATH, PLOT_PATH
+from model_func import run_model, plot_results, test_model, check_history
 
 
 def build_model(model_name, learning_rate, top_dropout_rate, num_classes) -> Model:
@@ -28,7 +28,7 @@ def build_model(model_name, learning_rate, top_dropout_rate, num_classes) -> Mod
     outputs = layers.Dense(num_classes, activation="softmax", name="pred")(x)
 
     model.summary()
-    plot_model(model, to_file=model_name + ".jpg", show_shapes=True)
+    plot_model(model, to_file=PLOT_PATH + ".jpg", show_shapes=True)
 
     # Compile
     model = keras.Model(inputs, outputs, name="EfficientNet")
@@ -43,6 +43,7 @@ def run():
 
     eff_net_history = run_model(
         model_name=MODEL_NAME,
+        hist_path=HIST_PATH,
         model_function=build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN),
         n_epochs=N_EPOCHS, n_workers=N_WORKERS,
         train_generator=train_generator,
@@ -55,14 +56,17 @@ def run():
 def test():
     train_generator, validation_generator, test_generator = loadDatabase(False)
     checkpoint = 'eff_net_b4_imagenet_weights_epoch-33_val_loss-2.13.hdf5'
-    test_model(checkpoint,
-               # build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TEST),
-               test_generator=test_generator)
+    # test_model(checkpoint,
+    #            # build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TEST),
+    #            test_generator=test_generator)
+
+    check_history(HIST_PATH)
+
 
 
 
 if __name__ == '__main__':
-    # run()
-    test()
+    run()
+    # test()
 
 
