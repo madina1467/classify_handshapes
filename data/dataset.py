@@ -8,7 +8,7 @@ from keras.preprocessing.image import ImageDataGenerator
 
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.load_labels import loadLabels
-from data.const import IMG_SIZE, BATCH_SIZE
+from data.const import IMG_SIZE, BATCH_SIZE, CLASSES
 
 
 def loadDatabase(visualize=False):
@@ -42,9 +42,6 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
     #     visualizeAugmentations(train_generator, pd.concat([train, test]))
 
 
-    # classes = np.arange(0, 60, 1).tolist()
-    classes = [str(x) for x in np.arange(1, 61, 1).tolist()]
-
     train_generator = train_generator.flow_from_dataframe(
         dataframe=train,
         # directory="./train/",
@@ -58,7 +55,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
-        classes=classes
+        classes=CLASSES
     )
 
     validation_generator = validation_generator.flow_from_dataframe(
@@ -70,7 +67,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
-        classes=classes
+        classes=CLASSES
     )
 
     test_generator = test_generator.flow_from_dataframe(
@@ -81,7 +78,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
-        classes=classes
+        classes=CLASSES
     )
     return train_generator, validation_generator, test_generator
 

@@ -2,13 +2,14 @@ import keras
 import tensorflow as tf
 from keras import layers, Model
 from keras.utils import plot_model
+
+# from data.load_labels import steps_needed
 from efficientnet.keras import EfficientNetB4
 import sys
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.dataset import loadDatabase
-from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, \
-    NUM_CLASSES_TEST, HISTORY_NAME, HIST_PATH, PLOT_PATH
-from model_func import run_model, plot_results, test_model, check_history
+from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH
+from model_func import run_model, save_plot_history, plot_acc
 
 
 def build_model(model_name, learning_rate, top_dropout_rate, num_classes) -> Model:
@@ -48,25 +49,23 @@ def run():
         n_epochs=N_EPOCHS, n_workers=N_WORKERS,
         train_generator=train_generator,
         validation_generator=validation_generator,
-        test_generator=test_generator,
+        test_generator=test_generator
     )
 
-    plot_results(eff_net_history)
-
 def test():
-    train_generator, validation_generator, test_generator = loadDatabase(False)
-    checkpoint = 'eff_net_b4_imagenet_weights_epoch-33_val_loss-2.13.hdf5'
+    # train_generator, validation_generator, test_generator = loadDatabase(False)
+    # checkpoint = '5_eff_net_b4_imagenet_weights_epoch-01_val_loss-15.11_val_acc-0.06.hdf5'
     # test_model(checkpoint,
     #            # build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TEST),
     #            test_generator=test_generator)
 
-    check_history(HIST_PATH)
-
+    plot_acc(HIST_PATH)
+    save_plot_history(HIST_PATH)
 
 
 
 if __name__ == '__main__':
-    run()
-    # test()
+    # run()
+    test()
 
 

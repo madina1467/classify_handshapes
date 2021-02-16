@@ -19,6 +19,16 @@ def getCorrectID(value):
             'ae_thumb', 'pincet_double', 'obaby_double', 'm2', 'jesus_thumb']
     return keys.index(value) + 1
 
+# def steps_needed(csv_files):
+#     steps = 0
+#
+#     for file in csv_files:
+#     df = pd.read_csv(file, chunksize=self.chunk_size)
+#     for df_chunk in df:
+#         chunk_steps = math.ceil(len(df_chunk) / self.batch_size)
+#         steps += chunk_steps
+#     return steps
+
 
 def getAllAnnotations():
     if path.exists("../misc/all_train.csv") and path.exists("../misc/all_test.csv"):

@@ -15,6 +15,7 @@ misc/all_test.csv
 train/logs/
 train/models/
 train/results/
+train/model_architecture/
 train/work/
 
 # Distribution / packaging

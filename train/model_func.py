@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,7 +13,7 @@ import dill as pickle
 from sklearn.metrics import classification_report, confusion_matrix
 
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
-from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH
+from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH
 
 
 def run_model(
@@ -41,6 +43,8 @@ def run_model(
     )
 
     save_history(hist_path, history)
+    save_plot_history(hist_path)
+    plot_acc(hist_path)
 
     return history  # type: ignore
 
@@ -53,13 +57,12 @@ def test_model(file_name, test_generator: Iterator):
         test_generator, len(test_generator) // BATCH_SIZE)
     plot_test_results(model, evaluation)
 
-
-    # ValueError: Error when checking target: expected pred to have shape (51,) but got array with shape (45,)
     # result = loaded_model.predict(test_image/255)
 
 
     #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    # pred = model.predict_generator(test_generator, steps=len(test_generator) // BATCH_SIZE, verbose=1, multi_processing=False)
+    # test_generator.reset()
+    # pred = model.predict_generator(test_generator, steps=len(test_generator) // BATCH_SIZE, verbose=1)
     #
     # preds_cls_idx = pred.argmax(axis=-1)
     # idx_to_cls = {v: k for k, v in test_generator.class_indices.items()}
@@ -67,8 +70,23 @@ def test_model(file_name, test_generator: Iterator):
     # true_cls = test_generator.classes
     # filenames_to_cls = list(zip(test_generator.filenames, preds_cls, true_cls))
     # df = pd.DataFrame(filenames_to_cls)
-    # df.to_csv(r'1_test_result.csv')
+    # df.to_csv(r'5_test_result.csv')
     # print(sum(preds_cls_idx[:, 0] == true_cls) / len(true_cls))
+    #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+    # test_generator.reset()
+    #
+    # pred = model.predict_generator(test_generator, steps=math.ceil(len(test_generator) / BATCH_SIZE), verbose=1)
+    # predicted_class_indices = np.argmax(pred, axis=1)
+    # labels = CLASSES
+    # labels = dict((v,k) for k,v in labels.items())
+    # predictions = [labels[k] for k in predicted_class_indices]
+    #
+    # filenames=test_generator.filenames
+    # results=pd.DataFrame({"Filename":filenames,
+    #                   "Predictions":predictions})
+    # results.to_csv("results.csv",index=False)
+
     #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
     # results = pd.DataFrame({"Filename": test_generator.filenames,
@@ -83,39 +101,6 @@ def test_model(file_name, test_generator: Iterator):
     # print("!!! FFFFFFF")
     # print(sum(preds[:, 0] == true_labels) / len(true_labels))
 
-    # 2
-    # predicted_class_indices=np.argmax(pred,axis=1)
-    # labels = (test_generator.class_indices)
-    # labels = dict((v, k) for k, v in labels.items())
-    # predictions = [labels[k] for k in predicted_class_indices]
-    #
-    # filenames = test_generator.filenames
-    # results = pd.DataFrame({"Filename": filenames,
-    #                         "Predictions": predictions})
-    # print(results)
-
-    # 3
-    # test_data = []
-    # test_labels = []
-    # batch_index = 0
-    #
-    # while batch_index <= test_generator.batch_index:
-    #     data = next(test_generator)
-    #     test_data.append(data[0])
-    #     test_labels.append(data[1])
-    #     batch_index = batch_index + 1
-    #
-    # test_data_array = np.asarray(test_data)
-    # test_labels_array = np.asarray(test_labels)
-    #
-    # data_count, batch_count, w, h, c = test_data_array.shape
-    #
-    # test_data_array = np.reshape(test_data_array, (data_count * batch_count, w, h, c))
-    # test_labels_array = np.reshape(test_labels_array, (data_count * batch_count, -1))
-    #
-    # cm = confusion_matrix(test_labels_array.argmax(axis=1), probabilities.argmax(axis=1))
-    #
-    # print(cm)
 
 def plot_test_results(model: Model, evaluation):
     key2name = {'acc': 'Accuracy', 'loss': 'Loss',
@@ -126,36 +111,40 @@ def plot_test_results(model: Model, evaluation):
     print(", ".join(results))
 
 
-def plot_results(model_history_eff_net: History):
-    plt.plot(model_history_eff_net.history["acc"])
-    plt.plot(model_history_eff_net.history["val_acc"])
+def plot_acc(hist_path):
+    with open(hist_path, 'rb') as f:
+        hist = pickle.load(f)
+    plt.plot(hist["acc"])
+    plt.plot(hist["val_acc"])
     # key2name = {'acc':'Accuracy', 'loss':'Loss',
     #     'val_acc':'Validation Accuracy', 'val_loss':'Validation Loss'}
     plt.title("model accuracy")
     plt.ylabel("accuracy")
     plt.xlabel("epoch")
     plt.legend(["train", "validation"], loc="upper left")
-    plt.savefig("training_validation.png")
+    plt.savefig(HIST_PLOT_PATH + 'model_accuracy.png')
     plt.show()
 
-def check_history(hist_path):
+def save_plot_history(hist_path):
     with open(hist_path, 'rb') as f:
         hist = pickle.load(f)
 
-    key2name = {'acc': 'Accuracy', 'loss': 'Loss',
+    key_metrics = {'acc': 'Accuracy', 'loss': 'Loss',
                 'val_acc': 'Validation Accuracy', 'val_loss': 'Validation Loss'}
 
+    plt.figure(1)
     fig = plt.figure()
 
-    things = ['acc', 'loss', 'val_acc', 'val_loss']
-    for i, thing in enumerate(things):
-        trace = hist[thing]
+    metrics = ['acc', 'loss', 'val_acc', 'val_loss']
+    for i, metric in enumerate(metrics):
+        trace = hist[metric]
         plt.subplot(2, 2, i + 1)
         plt.plot(range(len(trace)), trace)
-        plt.title(key2name[thing])
+        plt.title(key_metrics[metric])
 
     fig.set_tight_layout(True)
-    fig.savefig(PLOT_PATH+'.png')
+    fig.savefig(HIST_PLOT_PATH + '_model_metrics.png')
+
 
 def save_history(hist_path, hist):
     with open(hist_path, 'wb') as f:
@@ -179,10 +168,10 @@ def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, Mod
     # weights.{epoch:02d}-{val_loss:.2f}.hdf5   #_{epoch:02d}.ckpt
     model_checkpoint_callback = ModelCheckpoint(
         MODEL_PATH,
-        # 'models/' + model_name + '_weights_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5',
+        # 'models/' + model_name + '_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5',
         monitor='val_loss',# acc, val_acc, loss
         verbose=1,
-        save_best_only=True,  # TODO CHECK TRUE later, save the best model
+        save_best_only=False,  # TODO CHECK TRUE later, save the best model
         mode='auto',
         save_weights_only=False,
         period=SAVE_PERIOD  # save every SAVE_PERIOD epoch
