@@ -1,21 +1,33 @@
 from datetime import datetime
 import numpy as np
 import os
+#
+# | Base model | resolution|
+# |----------------|-----|
+# | EfficientNetB0 | 224 |
+# | EfficientNetB1 | 240 |
+# | EfficientNetB2 | 260 |
+# | EfficientNetB3 | 300 |
+# | EfficientNetB4 | 380 |
+# | EfficientNetB5 | 456 |
+# | EfficientNetB6 | 528 |
+# | EfficientNetB7 | 600 |
 
 TRAIN_PATH = '/media/kenny/Extra/downloads/1mil/nds-v2-training/'
 TEST_PATH = '/media/kenny/Extra/downloads/1mil/ph2014-dev-set-handshape-annotations/'
 NUM_CLASSES_TRAIN = 60
 NUM_CLASSES_TEST = 60
-IMG_SIZE = 380#b4   b5-456 # input shapes of the images should always be 224x224x3 with EfficientNetB0
+IMG_SIZE = 380 #b4
 BATCH_SIZE = 16 # TODO increase or decrease to fit your GPU
 SAVE_PERIOD = 1
-LEARNING_RATE=1e-2#0.5
+LEARNING_RATE=1e-2 #0.5
 UNFREEZE_LEARNING_RATE=1e-4
 N_EPOCHS=100
-N_WORKERS=1#0
+N_WORKERS=1 #0
 TOP_DROPOUT_RATE=0.2
 MODEL_NAME='11_effnet_b4'
 HISTORY_NAME= MODEL_NAME
+WEIGHTS="noisy-student"
 
 CLASSES = [str(x) for x in np.arange(1, 61, 1).tolist()]
 
