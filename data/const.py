@@ -1,4 +1,6 @@
 from datetime import datetime
+import numpy as np
+import os
 
 TRAIN_PATH = '/media/kenny/Extra/downloads/1mil/nds-v2-training/'
 TEST_PATH = '/media/kenny/Extra/downloads/1mil/ph2014-dev-set-handshape-annotations/'
@@ -11,17 +13,29 @@ LEARNING_RATE=1e-2#0.5
 N_EPOCHS=100
 N_WORKERS=1#0
 TOP_DROPOUT_RATE=0.2
-MODEL_NAME='5_eff_net_b4_imagenet'
+MODEL_NAME='10_effnet_b4'
 HISTORY_NAME= MODEL_NAME
 
-import numpy as np
 CLASSES = [str(x) for x in np.arange(1, 61, 1).tolist()]
 
-import os
 SAVE_DIR = "models/"+MODEL_NAME
-RES_DIR = "results"
+RES_DIR = "results/"+MODEL_NAME
 LOG_DIR = "logs/scalars"
 WORK_DIR = "model_architecture"
+try:
+    os.mkdir(SAVE_DIR)
+except OSError:
+    print ("Creation of the directory %s failed" % SAVE_DIR)
+else:
+    print ("Successfully created the directory %s " % SAVE_DIR)
+
+try:
+    os.mkdir(RES_DIR)
+except OSError:
+    print ("Creation of the directory %s failed" % RES_DIR)
+else:
+    print ("Successfully created the directory %s " % RES_DIR)
+
 MODEL_PATH = os.path.join(SAVE_DIR, MODEL_NAME + "_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5")
 HIST_PATH = os.path.join(RES_DIR, HISTORY_NAME + ".kerashist")
 HIST_PLOT_PATH = os.path.join(RES_DIR, HISTORY_NAME)

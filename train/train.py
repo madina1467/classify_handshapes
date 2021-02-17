@@ -9,7 +9,7 @@ import sys
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.dataset import loadDatabase
 from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH
-from model_func import run_model, save_plot_history, plot_acc
+from model_func import run_model, save_plot_history, plot_acc, test_model
 
 
 def build_model(model_name, learning_rate, top_dropout_rate, num_classes) -> Model:
@@ -19,7 +19,7 @@ def build_model(model_name, learning_rate, top_dropout_rate, num_classes) -> Mod
     model = EfficientNetB4(include_top=False, input_tensor=inputs, weights="imagenet")
 
     # Freeze the pretrained weights
-    model.trainable = False
+    # model.trainable = False
 
     # Rebuild top
     x = layers.GlobalAveragePooling2D(name="avg_pool")(model.output)
@@ -53,19 +53,17 @@ def run():
     )
 
 def test():
-    # train_generator, validation_generator, test_generator = loadDatabase(False)
-    # checkpoint = '5_eff_net_b4_imagenet_weights_epoch-01_val_loss-15.11_val_acc-0.06.hdf5'
-    # test_model(checkpoint,
-    #            # build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TEST),
-    #            test_generator=test_generator)
-
-    plot_acc(HIST_PATH)
-    save_plot_history(HIST_PATH)
+    train_generator, validation_generator, test_generator = loadDatabase(False)
+    # TODO change it!!!!!!!
+    checkpoint = 'gold/5_eff_net_b4_imagenet_weights_epoch-01_val_loss-16.12_val_acc-0.00.hdf5' #TODO name showld be from const
+    test_model(checkpoint,
+               # build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TEST),
+               test_generator=test_generator)
 
 
 
 if __name__ == '__main__':
-    # run()
-    test()
+    run()
+    # test()
 
 

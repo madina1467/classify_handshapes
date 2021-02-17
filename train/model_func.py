@@ -50,9 +50,7 @@ def run_model(
 
 
 def test_model(file_name, test_generator: Iterator):
-    #  model: Model,
     model = load_model('models/'+file_name)
-    # model.load_weights('models/'+file_name)
     evaluation = model.evaluate_generator(
         test_generator, len(test_generator) // BATCH_SIZE)
     plot_test_results(model, evaluation)
@@ -132,7 +130,6 @@ def save_plot_history(hist_path):
     key_metrics = {'acc': 'Accuracy', 'loss': 'Loss',
                 'val_acc': 'Validation Accuracy', 'val_loss': 'Validation Loss'}
 
-    plt.figure(1)
     fig = plt.figure()
 
     metrics = ['acc', 'loss', 'val_acc', 'val_loss']
@@ -151,29 +148,25 @@ def save_history(hist_path, hist):
         pickle.dump(hist.history, f)
 
 def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, ModelCheckpoint]]:
-    logdir = (
-            LOG_PATH
-            # 'logs/scalars/' + model_name + "_" + datetime.now().strftime("%Y%m%d-%H%M%S")
-    )  # create a folder for each model.
+    logdir = (LOG_PATH)  # create a folder for each model.
     tensorboard_callback = TensorBoard(log_dir=logdir)
     # use tensorboard --logdir logs/scalars in your command line to startup tensorboard with the correct logs
 
     early_stopping_callback = EarlyStopping(
-        monitor='val_loss',
-        patience=10,  # amount of epochs  with improvements worse than 1% until the model stops
-        verbose=2,
-        mode='auto',
+        monitor='val_acc',
+        patience=20,  # amount of epochs  with improvements worse than 1% until the model stops
+        verbose=1,
+        mode='max',
         restore_best_weights=True,  # restore the best model with the lowest validation error
     )
-    # weights.{epoch:02d}-{val_loss:.2f}.hdf5   #_{epoch:02d}.ckpt
+
     model_checkpoint_callback = ModelCheckpoint(
         MODEL_PATH,
-        # 'models/' + model_name + '_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5',
-        monitor='val_loss',# acc, val_acc, loss
+        monitor='val_acc',# acc, val_acc, loss, val_loss
         verbose=1,
         save_best_only=False,  # TODO CHECK TRUE later, save the best model
-        mode='auto',
+        mode='max',
         save_weights_only=False,
         period=SAVE_PERIOD  # save every SAVE_PERIOD epoch
-    )  # saving eff_net takes quite a bit of time
+    )
     return [tensorboard_callback, early_stopping_callback, model_checkpoint_callback]
