@@ -6,11 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
-misc/test.csv
-misc/train.csv
+misc/old/test.csv
+misc/old/train.csv
 
-misc/all_train.csv
-misc/all_test.csv
+misc/train.csv
+misc/test.csv
+./old/
 
 train/logs/
 train/models/

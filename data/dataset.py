@@ -12,9 +12,9 @@ from data.const import IMG_SIZE, BATCH_SIZE, CLASSES
 
 
 def loadDatabase(visualize=False):
-    loadLabels()
-    train = pd.read_csv(r'../misc/train.csv',dtype=str, index_col=[0])
-    test = pd.read_csv(r'../misc/test.csv',dtype=str, index_col=[0])
+    # loadLabels() #TODO #FIX
+    train = pd.read_csv(r'../misc/train.csv', dtype=str, index_col=[0])
+    test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
 
     train_labeled = train[train.label != 0]
     train_unlabeled = train[train.label == 0]

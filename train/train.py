@@ -80,7 +80,8 @@ def run():
 def test():
     train_generator, validation_generator, test_generator = loadDatabase(False)
     # TODO change it!!!!!!!
-    checkpoint = 'gold/5_eff_net_b4_imagenet_weights_epoch-01_val_loss-16.12_val_acc-0.00.hdf5' #TODO name showld be from const
+    checkpoint = '11_effnet_b4/11_effnet_b4_epoch-50_val_loss-1.46_val_acc-0.56.hdf5'
+    # checkpoint = 'gold/5_eff_net_b4_imagenet_weights_epoch-01_val_loss-16.12_val_acc-0.00.hdf5' #TODO name showld be from const
     test_model(checkpoint,
                # build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TEST),
                test_generator=test_generator)
@@ -88,6 +89,7 @@ def test():
 
 
 if __name__ == '__main__':
+    # print('AA')
     run()
     # test()
 

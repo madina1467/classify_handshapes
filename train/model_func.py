@@ -77,7 +77,7 @@ def test_model(file_name, test_generator: Iterator):
     # pred = model.predict_generator(test_generator, steps=math.ceil(len(test_generator) / BATCH_SIZE), verbose=1)
     # predicted_class_indices = np.argmax(pred, axis=1)
     # labels = CLASSES
-    # labels = dict((v,k) for k,v in labels.items())
+    # labels = dict((v,k) for k,v in labels.items()) #AttributeError: 'list' object has no attribute 'items'
     # predictions = [labels[k] for k in predicted_class_indices]
     #
     # filenames=test_generator.filenames
@@ -164,7 +164,7 @@ def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, Mod
         MODEL_PATH,
         monitor='val_acc',# acc, val_acc, loss, val_loss
         verbose=1,
-        save_best_only=False,  # TODO CHECK TRUE later, save the best model
+        save_best_only=True,  # TODO CHECK TRUE later, save the best model
         mode='max',
         save_weights_only=False,
         period=SAVE_PERIOD  # save every SAVE_PERIOD epoch

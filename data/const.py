@@ -1,6 +1,7 @@
 from datetime import datetime
 import numpy as np
 import os
+from os import path
 #
 # | Base model | resolution|
 # |----------------|-----|
@@ -25,7 +26,7 @@ UNFREEZE_LEARNING_RATE=1e-4
 N_EPOCHS=100
 N_WORKERS=1 #0
 TOP_DROPOUT_RATE=0.2
-MODEL_NAME='11_effnet_b4'
+MODEL_NAME='12_effnet_b4'
 HISTORY_NAME= MODEL_NAME
 WEIGHTS="noisy-student"
 
@@ -35,21 +36,24 @@ SAVE_DIR = "models/"+MODEL_NAME
 RES_DIR = "results/"+MODEL_NAME
 LOG_DIR = "logs/scalars"
 WORK_DIR = "model_architecture"
-try:
-    os.mkdir(SAVE_DIR)
-except OSError:
-    print ("Creation of the directory %s failed" % SAVE_DIR)
-else:
-    print ("Successfully created the directory %s " % SAVE_DIR)
 
-try:
-    os.mkdir(RES_DIR)
-except OSError:
-    print ("Creation of the directory %s failed" % RES_DIR)
-else:
-    print ("Successfully created the directory %s " % RES_DIR)
+if ~path.exists(SAVE_DIR):
+    try:
+        os.mkdir(SAVE_DIR)
+    except OSError:
+        print ("Creation of the directory %s failed" % SAVE_DIR)
+    else:
+        print ("Successfully created the directory %s " % SAVE_DIR)
 
-MODEL_PATH = os.path.join(SAVE_DIR, MODEL_NAME + "_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5")
+if ~path.exists(RES_DIR):
+    try:
+        os.mkdir(RES_DIR)
+    except OSError:
+        print ("Creation of the directory %s failed" % RES_DIR)
+    else:
+        print ("Successfully created the directory %s " % RES_DIR)
+
+MODEL_PATH = os.path.join(SAVE_DIR, MODEL_NAME + "_model.hdf5")#"_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5")
 HIST_PATH = os.path.join(RES_DIR, HISTORY_NAME + ".kerashist")
 HIST_PLOT_PATH = os.path.join(RES_DIR, HISTORY_NAME)
 LOG_PATH = os.path.join(LOG_DIR, MODEL_NAME+ "_" + datetime.now().strftime("%Y%m%d-%H%M%S"))

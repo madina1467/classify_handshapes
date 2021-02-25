@@ -7,7 +7,7 @@ import sys
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.const import TRAIN_PATH, TEST_PATH
 
-def findFiles(path, rec=False): return glob.glob(path,recursive=rec)
+def findFiles(path, rec): return glob.glob(path,recursive=rec)
 
 def getCorrectID(value):
     keys = ['1', '2', '3', '3_hook', '4', '5', '6', '7', '8', 'a', 'b', 'b_nothumb',
@@ -93,8 +93,8 @@ def loadLabels():
     # return train, test
 
 def checkClasses():
-    train = pd.read_csv(r'../misc/train.csv', index_col=[0])
-    test = pd.read_csv(r'../misc/test.csv', index_col=[0])
+    train = pd.read_csv(r'../misc/old/train.csv', index_col=[0])
+    test = pd.read_csv(r'../misc/old/test.csv', index_col=[0])
 
     print('!!AA train', train['label'].value_counts(ascending=True).sort_index())
     print('!!BB train', train['label'].nunique())
