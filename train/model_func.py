@@ -20,12 +20,12 @@ def run_model(
         model_name: str,
         hist_path:str,
         model_function: Model,
-        n_epochs, n_workers,
+        n_epochs, n_workers, patience,
         train_generator: Iterator,
         validation_generator: Iterator,
         test_generator: Iterator,
 ) -> History:
-    callbacks = get_callbacks(model_name)
+    callbacks = get_callbacks(model_name, patience)
     model = model_function
 
     history = model.fit_generator(
@@ -154,7 +154,7 @@ def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, Mod
 
     early_stopping_callback = EarlyStopping(
         monitor='val_acc',
-        patience=20,  # amount of epochs  with improvements worse than 1% until the model stops
+        patience=PATIENCE,  # amount of epochs  with improvements worse than 1% until the model stops
         verbose=1,
         mode='max',
         restore_best_weights=True,  # restore the best model with the lowest validation error

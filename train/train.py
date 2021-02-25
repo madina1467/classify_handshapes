@@ -10,7 +10,7 @@ import sys
 sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.dataset import loadDatabase
 from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, UNFREEZE_LEARNING_RATE, \
-    N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS
+    N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE
 from model_func import run_model, save_plot_history, plot_acc, test_model
 
 
@@ -72,6 +72,7 @@ def run():
         hist_path=HIST_PATH,
         model_function=model,
         n_epochs=N_EPOCHS, n_workers=N_WORKERS,
+        patience=PATIENCE,
         train_generator=train_generator,
         validation_generator=validation_generator,
         test_generator=test_generator

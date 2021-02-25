@@ -29,6 +29,7 @@ TOP_DROPOUT_RATE=0.2
 MODEL_NAME='12_effnet_b4'
 HISTORY_NAME= MODEL_NAME
 WEIGHTS="noisy-student"
+PATIENCE=5
 
 CLASSES = [str(x) for x in np.arange(1, 61, 1).tolist()]
 
