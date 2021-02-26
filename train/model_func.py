@@ -1,11 +1,15 @@
+import math
 import matplotlib.pyplot as plt
 import sys
 import dill as pickle
+import numpy as np
+import pandas as pd
 
 from typing import Iterator, List, Union
 from keras import Model
 from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
 from keras.models import load_model
+
 from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH, SYS_PATH
 
 sys.path.append(SYS_PATH)
@@ -45,9 +49,9 @@ def run_model(
 
 def test_model(file_name, test_generator: Iterator):
     model = load_model('models/'+file_name)
-    evaluation = model.evaluate_generator(
-        test_generator, len(test_generator) // BATCH_SIZE)
-    plot_test_results(model, evaluation)
+    # evaluation = model.evaluate_generator(
+    #     test_generator, len(test_generator) // BATCH_SIZE)
+    # plot_test_results(model, evaluation)
 
     # result = loaded_model.predict(test_image/255)
 
@@ -66,25 +70,19 @@ def test_model(file_name, test_generator: Iterator):
     # print(sum(preds_cls_idx[:, 0] == true_cls) / len(true_cls))
     #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    # test_generator.reset()
-    #
-    # pred = model.predict_generator(test_generator, steps=math.ceil(len(test_generator) / BATCH_SIZE), verbose=1)
-    # predicted_class_indices = np.argmax(pred, axis=1)
-    # labels = CLASSES
-    # labels = dict((v,k) for k,v in labels.items()) #AttributeError: 'list' object has no attribute 'items'
-    # predictions = [labels[k] for k in predicted_class_indices]
-    #
-    # filenames=test_generator.filenames
-    # results=pd.DataFrame({"Filename":filenames,
-    #                   "Predictions":predictions})
-    # results.to_csv("results.csv",index=False)
+    test_generator.reset()
+
+    pred = model.predict_generator(test_generator, steps=math.ceil(len(test_generator) / BATCH_SIZE), verbose=1)
+    predicted_class_indices = np.argmax(pred, axis=1)
+    labels = dict((v,k) for k,v in CLASSES)
+    predictions = [labels[k] for k in predicted_class_indices]
 
     #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
-    # results = pd.DataFrame({"Filename": test_generator.filenames,
-    #                         "Predictions": preds_cls,
-    #                         "TRUE class": true_cls})
-    # results.to_csv(r'1_test_result.csv')
+    results = pd.DataFrame({"Filename": test_generator.filenames,
+                            "Predictions": predictions,
+                            "TRUE class": test_generator.classes})
+    results.to_csv(r'2_test_result.csv')
     #
 
     # # 5

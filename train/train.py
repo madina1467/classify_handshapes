@@ -4,7 +4,7 @@ from keras import layers, Model
 from keras.utils import plot_model
 
 from efficientnet.keras import EfficientNetB4
-from data.dataset import loadDatabase
+from data.dataset import loadDatabase, loadTESTDatabase
 from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, UNFREEZE_LEARNING_RATE, \
     N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE, SYS_PATH
 from model_func import run_model, save_plot_history, plot_acc, test_model
@@ -77,7 +77,7 @@ def run():
     )
 
 def test():
-    train_generator, validation_generator, test_generator = loadDatabase(False)
+    test_generator = loadTESTDatabase(False)
     # TODO change it!!!!!!!
     checkpoint = '11_effnet_b4/11_effnet_b4_epoch-50_val_loss-1.46_val_acc-0.56.hdf5'
     # checkpoint = 'gold/5_eff_net_b4_imagenet_weights_epoch-01_val_loss-16.12_val_acc-0.00.hdf5' #TODO name showld be from const
@@ -89,7 +89,7 @@ def test():
 
 if __name__ == '__main__':
     # print('AA')
-    run()
-    # test()
+    # run()
+    test()
 
 
