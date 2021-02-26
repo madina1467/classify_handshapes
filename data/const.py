@@ -40,6 +40,8 @@ elif platform == "darwin":
     TEST_PATH = '/Users/madina/Desktop/dataset/1miohands-v2-training/ph2014-dev-set-handshape-annotations/'
 elif platform == "win32":
     SYS_PATH='' # Windows...
+    TRAIN_PATH = ''
+    TEST_PATH = ''
 
 CLASSES = [str(x) for x in np.arange(1, 61, 1).tolist()]
 
