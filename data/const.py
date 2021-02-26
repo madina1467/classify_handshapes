@@ -14,8 +14,6 @@ from os import path
 # | EfficientNetB6 | 528 |
 # | EfficientNetB7 | 600 |
 
-TRAIN_PATH = '/media/kenny/Extra/downloads/1mil/nds-v2-training/'
-TEST_PATH = '/media/kenny/Extra/downloads/1mil/ph2014-dev-set-handshape-annotations/'
 NUM_CLASSES_TRAIN = 60
 NUM_CLASSES_TEST = 60
 IMG_SIZE = 380 #b4
@@ -30,8 +28,18 @@ MODEL_NAME='12_effnet_b4'
 HISTORY_NAME= MODEL_NAME
 WEIGHTS="noisy-student"
 PATIENCE=5
-SYS_PATH ='/home/kenny/PycharmProjects/classify_handshapes'
 
+from sys import platform
+if platform == "linux" or platform == "linux2":
+    SYS_PATH = '/home/kenny/PycharmProjects/classify_handshapes' # linux
+    TRAIN_PATH = '/media/kenny/Extra/downloads/1mil/nds-v2-training/'
+    TEST_PATH = '/media/kenny/Extra/downloads/1mil/ph2014-dev-set-handshape-annotations/'
+elif platform == "darwin":
+    SYS_PATH = '/Users/madina/PycharmProjects/classify_handshapes' # OS X
+    TRAIN_PATH = '/Users/madina/Desktop/dataset/1miohands-v2-training/nds-v2-training/'
+    TEST_PATH = '/Users/madina/Desktop/dataset/1miohands-v2-training/ph2014-dev-set-handshape-annotations/'
+elif platform == "win32":
+    SYS_PATH='' # Windows...
 
 CLASSES = [str(x) for x in np.arange(1, 61, 1).tolist()]
 
