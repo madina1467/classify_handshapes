@@ -147,14 +147,14 @@ def save_history(hist_path, hist):
     with open(hist_path, 'wb') as f:
         pickle.dump(hist.history, f)
 
-def get_callbacks(model_name: str) -> List[Union[TensorBoard, EarlyStopping, ModelCheckpoint]]:
+def get_callbacks(model_name: str, patience) -> List[Union[TensorBoard, EarlyStopping, ModelCheckpoint]]:
     logdir = (LOG_PATH)  # create a folder for each model.
     tensorboard_callback = TensorBoard(log_dir=logdir)
     # use tensorboard --logdir logs/scalars in your command line to startup tensorboard with the correct logs
 
     early_stopping_callback = EarlyStopping(
         monitor='val_acc',
-        patience=PATIENCE,  # amount of epochs  with improvements worse than 1% until the model stops
+        patience=patience,  # amount of epochs  with improvements worse than 1% until the model stops
         verbose=1,
         mode='max',
         restore_best_weights=True,  # restore the best model with the lowest validation error
