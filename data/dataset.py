@@ -6,9 +6,9 @@ import numpy as np
 
 from keras.preprocessing.image import ImageDataGenerator
 
-sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
+sys.path.append(SYS_PATH)
 from data.load_labels import loadLabels
-from data.const import IMG_SIZE, BATCH_SIZE, CLASSES
+from data.const import IMG_SIZE, BATCH_SIZE, CLASSES, SYS_PATH
 
 
 def loadDatabase(visualize=False):

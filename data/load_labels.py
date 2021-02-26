@@ -2,10 +2,10 @@ import pandas as pd
 import glob
 import os
 from os import path
+from data.const import TRAIN_PATH, TEST_PATH, SYS_PATH
 
 import sys
-sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
-from data.const import TRAIN_PATH, TEST_PATH
+sys.path.append(SYS_PATH)
 
 def findFiles(path, rec): return glob.glob(path,recursive=rec)
 

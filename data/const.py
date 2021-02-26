@@ -30,6 +30,8 @@ MODEL_NAME='12_effnet_b4'
 HISTORY_NAME= MODEL_NAME
 WEIGHTS="noisy-student"
 PATIENCE=5
+SYS_PATH ='/home/kenny/PycharmProjects/classify_handshapes'
+
 
 CLASSES = [str(x) for x in np.arange(1, 61, 1).tolist()]
 

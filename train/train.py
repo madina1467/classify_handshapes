@@ -6,12 +6,13 @@ from keras.utils import plot_model
 
 # from data.load_labels import steps_needed
 from efficientnet.keras import EfficientNetB4
-import sys
-sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
 from data.dataset import loadDatabase
 from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, UNFREEZE_LEARNING_RATE, \
-    N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE
+    N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE, SYS_PATH
 from model_func import run_model, save_plot_history, plot_acc, test_model
+
+import sys
+sys.path.append(SYS_PATH)
 
 
 def build_model(model_name, learning_rate, top_dropout_rate, num_classes, weights) -> Model:

@@ -12,9 +12,9 @@ import sys
 import dill as pickle
 from sklearn.metrics import classification_report, confusion_matrix
 
-sys.path.append('/home/kenny/PycharmProjects/classify_handshapes')
-from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH
+from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH, SYS_PATH
 
+sys.path.append(SYS_PATH)
 
 def run_model(
         model_name: str,
