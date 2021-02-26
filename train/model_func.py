@@ -1,17 +1,11 @@
-import math
-
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import sys
+import dill as pickle
+
 from typing import Iterator, List, Union
-from datetime import datetime
 from keras import Model
 from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
 from keras.models import load_model
-import sys
-import dill as pickle
-from sklearn.metrics import classification_report, confusion_matrix
-
 from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH, SYS_PATH
 
 sys.path.append(SYS_PATH)

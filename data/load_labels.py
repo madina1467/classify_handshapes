@@ -1,10 +1,11 @@
 import pandas as pd
 import glob
 import os
+import sys
+
 from os import path
 from data.const import TRAIN_PATH, TEST_PATH, SYS_PATH
 
-import sys
 sys.path.append(SYS_PATH)
 
 def findFiles(path, rec): return glob.glob(path,recursive=rec)

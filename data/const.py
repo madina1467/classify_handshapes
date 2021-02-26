@@ -1,7 +1,9 @@
-from datetime import datetime
 import numpy as np
 import os
+
 from os import path
+from datetime import datetime
+from sys import platform
 #
 # | Base model | resolution|
 # |----------------|-----|
@@ -29,7 +31,6 @@ HISTORY_NAME= MODEL_NAME
 WEIGHTS="noisy-student"
 PATIENCE=5
 
-from sys import platform
 if platform == "linux" or platform == "linux2":
     SYS_PATH = '/home/kenny/PycharmProjects/classify_handshapes' # linux
     TRAIN_PATH = '/media/kenny/Extra/downloads/1mil/nds-v2-training/'

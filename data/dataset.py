@@ -1,15 +1,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from os import path
 import sys
-import numpy as np
 
+from os import path
 from keras.preprocessing.image import ImageDataGenerator
-
-sys.path.append(SYS_PATH)
-from data.load_labels import loadLabels
 from data.const import IMG_SIZE, BATCH_SIZE, CLASSES, SYS_PATH
 
+sys.path.append(SYS_PATH)
 
 def loadDatabase(visualize=False):
     # loadLabels() #TODO #FIX
