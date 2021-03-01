@@ -10,7 +10,8 @@ from keras import Model
 from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
 from keras.models import load_model
 
-from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH, SYS_PATH
+from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH, SYS_PATH, \
+    MODEL_NAME, ITERATION
 
 sys.path.append(SYS_PATH)
 
@@ -46,6 +47,26 @@ def run_model(
 
     return history  # type: ignore
 
+def teacher_predict_unlabeled(file_name, test_generator: Iterator):
+    model = load_model('models/'+file_name)
+
+    test_generator.reset()
+
+    pred = model.predict_generator(test_generator, steps=len(test_generator), verbose=1)
+    predicted_class_indices = np.argmax(pred, axis=1)
+
+    results = pd.DataFrame({"Filename": test_generator.filenames,
+                            "Predictions": predicted_class_indices,
+                            "TRUE class": test_generator.classes})
+
+    results.to_csv('results/labeling/' + ITERATION + '_' + MODEL_NAME +'_teacher_unlabeled_result.csv')
+
+    label_map = (test_generator.class_indices)
+    label_map = dict((v,k) for k,v in label_map.items())
+    predictions = [label_map[k] for k in predicted_class_indices]
+    results['TEST'] = predictions
+
+    results.to_csv('results/labeling/' + ITERATION + '_' + MODEL_NAME + '_teacher_unlabeled_result.csv')
 
 def test_model(file_name, test_generator: Iterator):
     model = load_model('models/'+file_name)

@@ -30,6 +30,7 @@ MODEL_NAME='12_effnet_b4'
 HISTORY_NAME= MODEL_NAME
 WEIGHTS="noisy-student"
 PATIENCE=5
+ITERATION=1
 
 if platform == "linux" or platform == "linux2":
     SYS_PATH = '/home/kenny/PycharmProjects/classify_handshapes' # linux
