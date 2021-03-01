@@ -18,9 +18,9 @@ def loadDatabase(visualize=False):
 
     return createGenerators(train_labeled, test, visualize)
 
-def loadTESTDatabase():
 
-    test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
+def loadTESTDatabase2(n=10):
+    test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0], nrows=n)
 
     return createTESTGenerators(test)
 
@@ -79,26 +79,31 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
         y_col=None,
         # y_col="label",
         shuffle=False,
+        class_mode=None,
         # class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
-        classes=CLASSES
+        classes=CLASSES,
+        to_fit=False
     )
     return train_generator, validation_generator, test_generator
 
+
 def createTESTGenerators(test: pd.DataFrame):
-    test_generator = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.25)
+    test_generator = ImageDataGenerator(rescale=1.0 / 255)
 
     test_generator = test_generator.flow_from_dataframe(
         dataframe=test,
         x_col="path",
-        y_col=None,
-        # y_col="label",
+        # y_col=None,
+        y_col="label",
         shuffle=False,
-        # class_mode="categorical",
+        class_mode="categorical",
+        # class_mode=None,
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
-        classes=CLASSES
+        classes=CLASSES,
+        to_fit=False
     )
     return test_generator
 
