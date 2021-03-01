@@ -20,8 +20,8 @@ def loadDatabase(visualize=False):
 
 def loadDatabaseUnlabeled():
     train = pd.read_csv(r'../misc/train.csv', dtype=str, index_col=[0])
-    train_unlabeled = train[train.label == 0]
-    return createTestGenerator(train_unlabeled)
+    train_unlabeled = train[train.label == '0']
+    return createTestGenerator(train_unlabeled, False, False)
 
 def loadTESTDatabase():
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
@@ -39,11 +39,11 @@ def createTestGenerator(test: pd.DataFrame, shuffle=False, to_fit=False):
     test_generator = generator.flow_from_dataframe(
         dataframe=test,
         x_col="path",
-        # y_col=None,
-        y_col="label",
+        y_col=None,
+        # y_col="label",
         shuffle=shuffle,
-        class_mode="categorical",
-        # class_mode=None,
+        # class_mode="categorical",
+        class_mode=None,
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
         classes=CLASSES,
@@ -184,4 +184,4 @@ def visualizeAugmentations(data_generator: ImageDataGenerator, df: pd.DataFrame)
     plt.close()
 
 
-train, val, test = loadDatabase(True)
+# train, val, test = loadDatabase(True)

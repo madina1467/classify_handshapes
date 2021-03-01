@@ -47,21 +47,21 @@ def run_model(
 
     return history  # type: ignore
 
-def teacher_predict_unlabeled(file_name, test_generator: Iterator):
+def teacher_predict_unlabeled(file_name, unlabeled_generator: Iterator):
     model = load_model('models/'+file_name)
 
-    test_generator.reset()
+    unlabeled_generator.reset()
 
-    pred = model.predict_generator(test_generator, steps=len(test_generator), verbose=1)
+    pred = model.predict_generator(unlabeled_generator, steps=len(unlabeled_generator), verbose=1)
     predicted_class_indices = np.argmax(pred, axis=1)
 
-    results = pd.DataFrame({"Filename": test_generator.filenames,
+    results = pd.DataFrame({"Filename": unlabeled_generator.filenames,
                             "Predictions": predicted_class_indices,
-                            "TRUE class": test_generator.classes})
+                            "TRUE class": unlabeled_generator.classes})
 
     results.to_csv('results/labeling/' + ITERATION + '_' + MODEL_NAME +'_teacher_unlabeled_result.csv')
 
-    label_map = (test_generator.class_indices)
+    label_map = (unlabeled_generator.class_indices)
     label_map = dict((v,k) for k,v in label_map.items())
     predictions = [label_map[k] for k in predicted_class_indices]
     results['TEST'] = predictions
