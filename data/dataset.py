@@ -18,6 +18,10 @@ def loadDatabase(visualize=False):
 
     return createGenerators(train_labeled, test, visualize)
 
+def loadDatabaseUnlabeled():
+    train = pd.read_csv(r'../misc/train.csv', dtype=str, index_col=[0])
+    train_unlabeled = train[train.label == 0]
+    return createTestGenerator(train_unlabeled)
 
 def loadTESTDatabase():
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
@@ -28,6 +32,26 @@ def loadTESTDatabase2(n=10):
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0], nrows=n)
 
     return createTESTGenerators(test)
+
+def createTestGenerator(test: pd.DataFrame, shuffle=False, to_fit=False):
+    generator = ImageDataGenerator(rescale=1.0 / 255)
+
+    test_generator = generator.flow_from_dataframe(
+        dataframe=test,
+        x_col="path",
+        # y_col=None,
+        y_col="label",
+        shuffle=shuffle,
+        class_mode="categorical",
+        # class_mode=None,
+        target_size=(IMG_SIZE, IMG_SIZE),
+        batch_size=BATCH_SIZE,
+        classes=CLASSES,
+        to_fit=to_fit
+    )
+    return test_generator
+
+
 
 
 def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
@@ -44,7 +68,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
         validation_split=0.25
     )  # create an ImageDataGenerator with multiple image augmentations
     validation_generator = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.25)  # except for rescaling, no augmentations are needed for validation and testing generators
-    test_generator = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.25)
+    test_generator = ImageDataGenerator(rescale=1.0 / 255)
     # visualize image augmentations
     # if visualize == True:
     #     visualizeAugmentations(train_generator, pd.concat([train, test]))
@@ -81,11 +105,11 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
     test_generator = test_generator.flow_from_dataframe(
         dataframe=test,
         x_col="path",
-        y_col=None,
-        # y_col="label",
+        # y_col=None,
+        y_col="label",
         shuffle=False,
-        class_mode=None,
-        # class_mode="categorical",
+        class_mode="categorical",
+        # class_mode=None,
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
         classes=CLASSES,
