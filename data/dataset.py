@@ -19,6 +19,11 @@ def loadDatabase(visualize=False):
     return createGenerators(train_labeled, test, visualize)
 
 
+def loadTESTDatabase():
+    test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
+
+    return createTESTGenerators(test)
+
 def loadTESTDatabase2(n=10):
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0], nrows=n)
 
