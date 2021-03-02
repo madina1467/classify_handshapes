@@ -4,6 +4,9 @@ import sys
 import dill as pickle
 import numpy as np
 import pandas as pd
+import atexit
+import signal
+from functools import partial
 
 from typing import Iterator, List, Union
 from keras import Model
@@ -47,12 +50,33 @@ def run_model(
 
     return history  # type: ignore
 
+def done_function(fileName, toSave):
+    with open(fileName, 'wb') as f:
+        np.save(f, toSave)
+    with open(fileName, 'rb') as f:
+        a = np.load(f)
+    print(a)
+    print('WWWWWWWWWWWWW')
+
 def teacher_predict_unlabeled(file_name, unlabeled_generator: Iterator):
     model = load_model('models/'+file_name)
-
     unlabeled_generator.reset()
 
+    # pred222 = np.array([])
+    # atexit.register(done_function, fileName='testtesttesttest22.npy', toSave=pred222)
+
+    # for sig in signal.valid_signals():
+    #     print(f'{sig.value}: signal.{sig.name},')
+    #     signal.signal(sig, partial(done_function, fileName='testtesttesttest22.npy', toSave=pred222))
+
+    # signal.signal(signal.SIGTERM, partial(done_function, fileName='testtesttesttest22.npy', toSave=pred222))
+    # signal.signal(signal.SIGINT, partial(done_function, fileName='testtesttesttest22.npy', toSave=pred222))
+
     pred = model.predict_generator(unlabeled_generator, steps=len(unlabeled_generator), verbose=1)
+
+    with open('results/labeling/' + ITERATION + '_' + MODEL_NAME + '_teacher_unlabeled_result.npy', 'wb') as f:
+        np.save(f, pred)
+
     predicted_class_indices = np.argmax(pred, axis=1)
 
     results = pd.DataFrame({"Filename": unlabeled_generator.filenames,
