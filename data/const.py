@@ -36,6 +36,7 @@ if platform == "linux" or platform == "linux2":
     SYS_PATH = '/home/kenny/PycharmProjects/classify_handshapes' # linux
     TRAIN_PATH = '/media/kenny/Extra/downloads/1mil/nds-v2-training/'
     TEST_PATH = '/media/kenny/Extra/downloads/1mil/ph2014-dev-set-handshape-annotations/'
+    LABELS_PATH = '/home/kenny/PycharmProjects/classify_handshapes/train/results/labeling/'
 elif platform == "darwin":
     SYS_PATH = '/Users/madina/PycharmProjects/classify_handshapes' # OS X
     TRAIN_PATH = '/Users/madina/Desktop/dataset/1miohands-v2-training/nds-v2-training/'
@@ -49,7 +50,8 @@ CLASSES = [str(x) for x in np.arange(1, 61, 1).tolist()]
 
 SAVE_DIR = "models/"+MODEL_NAME
 RES_DIR = "results/"+MODEL_NAME
-LOG_DIR = "logs/scalars"
+LABELING_DIR = "results/labeling/"
+LOG_DIR = "logs/scalars/"
 WORK_DIR = "model_architecture"
 
 if ~path.exists(SAVE_DIR):

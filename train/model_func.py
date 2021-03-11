@@ -14,7 +14,9 @@ from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
 from keras.models import load_model
 
 from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH, SYS_PATH, \
-    MODEL_NAME, ITERATION
+    MODEL_NAME, ITERATION, LABELS_PATH
+import os
+from os import path
 
 sys.path.append(SYS_PATH)
 
@@ -91,6 +93,38 @@ def teacher_predict_unlabeled(file_name, unlabeled_generator: Iterator):
     results['TEST'] = predictions
 
     results.to_csv('results/labeling/' + ITERATION + '_' + MODEL_NAME + '_teacher_unlabeled_result.csv')
+
+def save_labeled_results(unlabeled_generator):
+    with open(os.path.join(LABELS_PATH, ITERATION + '_' + MODEL_NAME + '_teacher_unlabeled_result.npy'), 'rb') as f:
+        pred = np.load(f)
+
+    # predicted_class_indices = np.argmax(pred, axis=1)
+    # results = pd.DataFrame({"Filename": unlabeled_generator.filenames,
+    #                         "Predictions": predicted_class_indices})
+
+    i = 0
+    results = pd.DataFrame(columns=['Filename', 'Prediction', 'PredPercent', 'Prediction2', 'PredPercent2', 'Prediction3', 'PredPercent3'])
+    res05 = pd.DataFrame(columns=['Filename', 'Prediction', 'PredPercent', 'Prediction2', 'PredPercent2', 'Prediction3', 'PredPercent3'])
+    for row in pred:
+
+        predictions_idx = np.argpartition(row, len(row) - 3)[-3:]
+
+        results = results.append({'Filename': unlabeled_generator.filenames[i],
+                                  'Prediction': predictions_idx[2], 'PredPercent': row[predictions_idx[2]],
+                                  'Prediction2': predictions_idx[1], 'PredPercent2': row[predictions_idx[1]],
+                                  'Prediction3': predictions_idx[0], 'PredPercent3': row[predictions_idx[0]]
+                                  }, ignore_index=True)
+        if row[predictions_idx[2]] > 0.5:
+            res05 = res05.append({'Filename': unlabeled_generator.filenames[i],
+                                  'Prediction': predictions_idx[2], 'PredPercent': row[predictions_idx[2]],
+                                  'Prediction2': predictions_idx[1], 'PredPercent2': row[predictions_idx[1]],
+                                  'Prediction3': predictions_idx[0], 'PredPercent3': row[predictions_idx[0]]
+                                  }, ignore_index=True)
+
+        i = i + 1
+    results.to_csv(os.path.join(LABELS_PATH, ITERATION + '_' + MODEL_NAME + '_teacher_unlabeled_result.csv'))
+    res05.to_csv(os.path.join(LABELS_PATH, ITERATION + '_' + MODEL_NAME + '_teacher_unlabeled_result_0.5.csv'))
+
 
 def test_model(file_name, test_generator: Iterator):
     model = load_model('models/'+file_name)
