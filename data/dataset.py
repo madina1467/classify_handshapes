@@ -12,7 +12,7 @@ import numpy as np
 
 sys.path.append(SYS_PATH)
 
-def loadTeacherDatabase(visualize=False):
+def loadTeacherDatabase():
     # loadLabels() #TODO #FIX
     train = pd.read_csv(r'../misc/train.csv', dtype=str, index_col=[0])
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
@@ -20,7 +20,14 @@ def loadTeacherDatabase(visualize=False):
     train_labeled = train[train.label != 0]
     train_unlabeled = train[train.label == 0]
 
-    return createTeacherGenerators(train_labeled, test, visualize)
+    return createGenerators(train_labeled, test, isTeacher=True)
+
+def loadStudentDatabase():
+    # loadLabels() #TODO #FIX
+    train = pd.read_csv(r'../misc/student_train.csv', dtype=str, index_col=[0])
+    test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
+
+    return createGenerators(train, test, isTeacher=False)
 
 def loadDatabaseUnlabeled():
     train = pd.read_csv(r'../misc/train.csv', dtype=str, index_col=[0])
@@ -56,11 +63,17 @@ def createTestGenerator(test: pd.DataFrame, shuffle=False, to_fit=False):
     return test_generator
 
 
+randaugment = Rand_Augment()
+def preprocessing_function(image):
 
+    image = Image.fromarray(image.astype(np.uint8))
+    image = np.array(randaugment(image))
+    return image.astype(np.float64)
 
-def createTeacherGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
+def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
 
-    train_generator = ImageDataGenerator(
+    if isTeacher:
+        train_generator = ImageDataGenerator(
         rescale=1.0 / 255,
         rotation_range=5,
         width_shift_range=0.1,
@@ -70,7 +83,13 @@ def createTeacherGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=F
         zoom_range=[0.75, 1],
         horizontal_flip=True,
         validation_split=0.25
-    )  # create an ImageDataGenerator with multiple image augmentations
+        )
+    else: #FOR STUDENT
+        train_generator = ImageDataGenerator(
+            preprocessing_function=preprocessing_function,
+            rescale=1.0 / 255,
+            validation_split=0.25
+        )
     validation_generator = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.25)  # except for rescaling, no augmentations are needed for validation and testing generators
     test_generator = ImageDataGenerator(rescale=1.0 / 255)
     # visualize image augmentations
@@ -84,9 +103,6 @@ def createTeacherGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=F
         x_col="path",
         y_col="label",
         subset="training",
-        # batch_size=32,
-        # seed=42,
-        # target_size=(32, 32),
         shuffle=True,
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
@@ -109,11 +125,9 @@ def createTeacherGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=F
     test_generator = test_generator.flow_from_dataframe(
         dataframe=test,
         x_col="path",
-        # y_col=None,
         y_col="label",
         shuffle=False,
         class_mode="categorical",
-        # class_mode=None,
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
         classes=CLASSES,
@@ -139,38 +153,6 @@ def createTESTGenerators(test: pd.DataFrame):
         to_fit=False
     )
     return test_generator
-
-
-randaugment = Rand_Augment()
-def preprocessing_function(image):
-
-    image = Image.fromarray(image.astype(np.uint8))
-    image = np.array(randaugment(image))
-    return image.astype(np.float64)
-
-
-def createStudentGenerators(unlabeled: pd.DataFrame):
-
-    unlabeled_generator = ImageDataGenerator(
-        preprocessing_function=preprocessing_function,
-        rescale=1 / 255)
-
-    unlabeled_generator = unlabeled_generator.flow_from_dataframe(
-        dataframe=unlabeled,
-        # directory="./train/",
-        x_col="path",
-        y_col="label",
-        subset="training",
-        # batch_size=32,
-        # seed=42,
-        # target_size=(32, 32),
-        shuffle=True,
-        class_mode="categorical",
-        target_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=BATCH_SIZE,
-        classes=CLASSES
-    )
-    return unlabeled_generator
 
 
 

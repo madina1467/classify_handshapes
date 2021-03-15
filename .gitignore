@@ -11,6 +11,7 @@ misc/old/train.csv
 
 misc/train.csv
 misc/test.csv
+misc/student_train.csv
 ./old/
 
 train/logs/

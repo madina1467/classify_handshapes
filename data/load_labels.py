@@ -4,7 +4,7 @@ import os
 import sys
 
 from os import path
-from data.const import TRAIN_PATH, TEST_PATH, SYS_PATH
+from data.const import TRAIN_PATH, TEST_PATH, SYS_PATH, ITERATION, MODEL_NAME
 
 sys.path.append(SYS_PATH)
 
@@ -52,6 +52,30 @@ def getTeacherAnnotations():
         test.to_csv(r'../misc/all_test.csv')
     return train, test
 
+
+def getStudentAnnotations():
+    # if path.exists("../misc/student_train.csv") and path.exists("../misc/test.csv"):
+    #     train = pd.read_csv(r'../misc/student_train.csv', index_col=[0])
+    #     test = pd.read_csv(r'../misc/test.csv', index_col=[0])
+    # else:
+    print('getStudentAnnotations(): Start reading train/test files')
+    file = './train/results/labeling/' + ITERATION + '_' + MODEL_NAME + '_teacher_unlabeled_result.csv'
+    # train = pd.read_csv(file)
+
+    train = pd.read_csv(file, sep=",", header=0, names=["Filename", "Prediction", "PredPercent", "Prediction2", "PredPercent2", "Prediction3", "PredPercent3"])
+    train['PredPercent'] = pd.to_numeric(train['PredPercent'], downcast="float", errors='coerce')
+    train.drop(train[train.PredPercent < 0.3].index, inplace=True)
+    train.rename(columns={'Filename': 'path', 'Prediction': 'label'}, inplace=True)
+    train.drop(["PredPercent", "Prediction2", "PredPercent2", "Prediction3", "PredPercent3"], axis=1, inplace=True)
+
+    test = pd.read_csv(r'./misc/test.csv', index_col=[0])
+
+    print('getStudentAnnotations(): End reading train/test files')
+
+    train.to_csv(r'./misc/student_train.csv')
+        # test.to_csv(r'../misc/test.csv')
+    return train, test
+
 def getLabelFromDF(df, path):
     temp = df[df.path == path]
     if temp.size == 0:
@@ -93,6 +117,17 @@ def loadTeacherLabels():
 
     # return train, test
 
+def loadStudentLabels():
+    # if path.exists("../misc/student_train.csv") and path.exists("../misc/test.csv"):
+    #     train = pd.read_csv(r'../misc/student_train.csv', index_col=[0])
+    #     test = pd.read_csv(r'../misc/test.csv', index_col=[0])
+    # else:
+    print('loadStudentLabels(): Starting creating new train/test files')
+    train, test = getStudentAnnotations()
+
+    # print(train)
+    return train, test
+
 def checkTeacherClasses():
     train = pd.read_csv(r'../misc/old/train.csv', index_col=[0])
     test = pd.read_csv(r'../misc/old/test.csv', index_col=[0])
@@ -105,3 +140,4 @@ def checkTeacherClasses():
 
 # checkClasses()
 # loadLabels()
+# loadStudentLabels()
