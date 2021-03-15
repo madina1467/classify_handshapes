@@ -102,7 +102,7 @@ def save_label_results():
 
 
 def run_student():
-    train_generator, validation_generator, test_generator = loadStudentDatabase(False)
+    train_generator, validation_generator, test_generator = loadStudentDatabase()
 
     # with strategy.scope():
     model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)

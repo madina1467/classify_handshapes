@@ -4,7 +4,7 @@ import os
 import sys
 
 from os import path
-from data.const import TRAIN_PATH, TEST_PATH, SYS_PATH, ITERATION, MODEL_NAME
+from data.const import TRAIN_PATH, TEST_PATH, SYS_PATH, ITERATION, MODEL_NAME, LAST_TEACHER_MODEL_NAME
 
 sys.path.append(SYS_PATH)
 
@@ -59,13 +59,14 @@ def getStudentAnnotations():
     #     test = pd.read_csv(r'../misc/test.csv', index_col=[0])
     # else:
     print('getStudentAnnotations(): Start reading train/test files')
-    file = './train/results/labeling/' + ITERATION + '_' + MODEL_NAME + '_teacher_unlabeled_result.csv'
+    file = './train/results/labeling/' + ITERATION + '_' + LAST_TEACHER_MODEL_NAME + '_teacher_unlabeled_result.csv'
     # train = pd.read_csv(file)
 
     train = pd.read_csv(file, sep=",", header=0, names=["Filename", "Prediction", "PredPercent", "Prediction2", "PredPercent2", "Prediction3", "PredPercent3"])
     train['PredPercent'] = pd.to_numeric(train['PredPercent'], downcast="float", errors='coerce')
     train.drop(train[train.PredPercent < 0.3].index, inplace=True)
     train.rename(columns={'Filename': 'path', 'Prediction': 'label'}, inplace=True)
+    train.label = train.label + 1
     train.drop(["PredPercent", "Prediction2", "PredPercent2", "Prediction3", "PredPercent3"], axis=1, inplace=True)
 
     test = pd.read_csv(r'./misc/test.csv', index_col=[0])
@@ -140,4 +141,4 @@ def checkTeacherClasses():
 
 # checkClasses()
 # loadLabels()
-# loadStudentLabels()
+loadStudentLabels()
