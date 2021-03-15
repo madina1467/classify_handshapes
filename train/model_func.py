@@ -10,11 +10,11 @@ from functools import partial
 
 from typing import Iterator, List, Union
 from keras import Model
-from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint
+from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint, CSVLogger
 from keras.models import load_model
 
 from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH, SYS_PATH, \
-    MODEL_NAME, ITERATION, LABELS_PATH
+    MODEL_NAME, ITERATION, LABELS_PATH, MODEL_CSV_HIST_PATH
 import os
 from os import path
 
@@ -240,4 +240,7 @@ def get_callbacks(model_name: str, patience) -> List[Union[TensorBoard, EarlySto
         save_weights_only=False,
         period=SAVE_PERIOD  # save every SAVE_PERIOD epoch
     )
-    return [tensorboard_callback, early_stopping_callback, model_checkpoint_callback]
+
+    csv_logger = CSVLogger(MODEL_CSV_HIST_PATH, append=True)
+
+    return [tensorboard_callback, early_stopping_callback, model_checkpoint_callback, csv_logger]

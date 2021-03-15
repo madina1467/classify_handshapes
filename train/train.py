@@ -4,7 +4,7 @@ from keras import layers, Model
 from keras.utils import plot_model
 
 from efficientnet.keras import EfficientNetB4
-from data.dataset import loadTeacherDatabase, loadTESTDatabase, loadDatabaseUnlabeled
+from data.dataset import loadTeacherDatabase, loadTESTDatabase, loadDatabaseUnlabeled, loadStudentDatabase
 from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, UNFREEZE_LEARNING_RATE, \
     N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE, SYS_PATH
 from model_func import run_model, save_plot_history, plot_acc, test_model, teacher_predict_unlabeled, \
@@ -101,10 +101,30 @@ def save_label_results():
     save_labeled_results(unlabeled_generator)
 
 
+def run_student():
+    train_generator, validation_generator, test_generator = loadStudentDatabase(False)
+
+    # with strategy.scope():
+    model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)
+    model = unfreeze_model(model, UNFREEZE_LEARNING_RATE)
+
+    eff_net_history = run_model(
+        model_name=MODEL_NAME,
+        hist_path=HIST_PATH,
+        model_function=model,
+        n_epochs=N_EPOCHS, n_workers=N_WORKERS,
+        patience=PATIENCE,
+        train_generator=train_generator,
+        validation_generator=validation_generator,
+        test_generator=test_generator
+    )
+
+
 if __name__ == '__main__':
     # print('AA')
     # run()
     # test()
     # teacher_labeling()
-    save_label_results()
+    # save_label_results()
+    run_student()
 

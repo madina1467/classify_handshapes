@@ -26,8 +26,8 @@ UNFREEZE_LEARNING_RATE=1e-4
 N_EPOCHS=100
 N_WORKERS=1 #0
 TOP_DROPOUT_RATE=0.2
-MODEL_NAME='12_effnet_b4'
-HISTORY_NAME= MODEL_NAME
+MODEL_NAME='student_12_effnet_b4'
+HISTORY_NAME= MODEL_NAME+'HISTORY'
 WEIGHTS="noisy-student"
 PATIENCE=5
 ITERATION='1'
@@ -71,6 +71,7 @@ if ~path.exists(RES_DIR):
         print ("Successfully created the directory %s " % RES_DIR)
 
 MODEL_PATH = os.path.join(SAVE_DIR, MODEL_NAME + "_model.hdf5")#"_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5")
+MODEL_CSV_HIST_PATH = os.path.join(RES_DIR, HISTORY_NAME + "_log.csv")
 HIST_PATH = os.path.join(RES_DIR, HISTORY_NAME + ".kerashist")
 HIST_PLOT_PATH = os.path.join(RES_DIR, HISTORY_NAME)
 LOG_PATH = os.path.join(LOG_DIR, MODEL_NAME+ "_" + datetime.now().strftime("%Y%m%d-%H%M%S"))
