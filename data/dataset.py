@@ -12,7 +12,7 @@ import numpy as np
 
 sys.path.append(SYS_PATH)
 
-def loadDatabase(visualize=False):
+def loadTeacherDatabase(visualize=False):
     # loadLabels() #TODO #FIX
     train = pd.read_csv(r'../misc/train.csv', dtype=str, index_col=[0])
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
@@ -20,7 +20,7 @@ def loadDatabase(visualize=False):
     train_labeled = train[train.label != 0]
     train_unlabeled = train[train.label == 0]
 
-    return createGenerators(train_labeled, test, visualize)
+    return createTeacherGenerators(train_labeled, test, visualize)
 
 def loadDatabaseUnlabeled():
     train = pd.read_csv(r'../misc/train.csv', dtype=str, index_col=[0])
@@ -58,7 +58,7 @@ def createTestGenerator(test: pd.DataFrame, shuffle=False, to_fit=False):
 
 
 
-def createGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
+def createTeacherGenerators(train: pd.DataFrame, test: pd.DataFrame, visualize=False):
 
     train_generator = ImageDataGenerator(
         rescale=1.0 / 255,
@@ -149,7 +149,7 @@ def preprocessing_function(image):
     return image.astype(np.float64)
 
 
-def createUnlabeledGenerators(unlabeled: pd.DataFrame):
+def createStudentGenerators(unlabeled: pd.DataFrame):
 
     unlabeled_generator = ImageDataGenerator(
         preprocessing_function=preprocessing_function,

@@ -4,7 +4,7 @@ from keras import layers, Model
 from keras.utils import plot_model
 
 from efficientnet.keras import EfficientNetB4
-from data.dataset import loadDatabase, loadTESTDatabase, loadDatabaseUnlabeled
+from data.dataset import loadTeacherDatabase, loadTESTDatabase, loadDatabaseUnlabeled
 from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, UNFREEZE_LEARNING_RATE, \
     N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE, SYS_PATH
 from model_func import run_model, save_plot_history, plot_acc, test_model, teacher_predict_unlabeled, \
@@ -60,7 +60,7 @@ def unfreeze_model(model, learning_rate):
     return model
 
 def run():
-    train_generator, validation_generator, test_generator = loadDatabase(False)
+    train_generator, validation_generator, test_generator = loadTeacherDatabase(False)
 
     # with strategy.scope():
     model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)

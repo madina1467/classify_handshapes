@@ -31,7 +31,7 @@ def getCorrectID(value):
 #     return steps
 
 
-def getAllAnnotations():
+def getTeacherAnnotations():
     if path.exists("../misc/all_train.csv") and path.exists("../misc/all_test.csv"):
         train = pd.read_csv(r'../misc/all_train.csv', index_col=[0])
         test = pd.read_csv(r'../misc/all_test.csv', index_col=[0])
@@ -72,13 +72,13 @@ def createLabels(all_labels, expected_dir):
             df = df.append({'path': file_name_relative, 'label': label, 'name': file_name_absolute}, ignore_index=True)
     return df, counter_not_found
 
-def loadLabels():
+def loadTeacherLabels():
     if path.exists("../misc/train.csv") and path.exists("../misc/test.csv"):
         train = pd.read_csv(r'../misc/train.csv', index_col=[0])
         test = pd.read_csv(r'../misc/test.csv', index_col=[0])
     else:
         print('getLabels(): Starting creating new train/test files')
-        all_train, all_test = getAllAnnotations()
+        all_train, all_test = getTeacherAnnotations()
 
         train, nf_train = createLabels(all_train, TRAIN_PATH)
         test, nf_test = createLabels(all_test, TEST_PATH)
@@ -93,7 +93,7 @@ def loadLabels():
 
     # return train, test
 
-def checkClasses():
+def checkTeacherClasses():
     train = pd.read_csv(r'../misc/old/train.csv', index_col=[0])
     test = pd.read_csv(r'../misc/old/test.csv', index_col=[0])
 
