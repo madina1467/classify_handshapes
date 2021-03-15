@@ -23,7 +23,7 @@ class Rand_Augment():
             "shearY": np.linspace(0, 0.3, 10),
             "translateX": np.linspace(0, 0.2, 10),
             "translateY": np.linspace(0, 0.2, 10),
-            "rotate": np.linspace(0, 360, 10),
+            "rotate": np.linspace(-30, 30, 10),
             "color": np.linspace(0.0, 0.9, 10),
             "posterize": np.round(np.linspace(8, 4, 10), 0).astype(np.int),
             "solarize": np.linspace(256, 231, 10),

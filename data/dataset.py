@@ -5,6 +5,10 @@ import sys
 from os import path
 from keras.preprocessing.image import ImageDataGenerator
 from data.const import IMG_SIZE, BATCH_SIZE, CLASSES, SYS_PATH
+from data.randaugment import Rand_Augment
+
+from PIL import Image
+import numpy as np
 
 sys.path.append(SYS_PATH)
 
@@ -135,6 +139,38 @@ def createTESTGenerators(test: pd.DataFrame):
         to_fit=False
     )
     return test_generator
+
+
+randaugment = Rand_Augment()
+def preprocessing_function(image):
+
+    image = Image.fromarray(image.astype(np.uint8))
+    image = np.array(randaugment(image))
+    return image.astype(np.float64)
+
+
+def createUnlabeledGenerators(unlabeled: pd.DataFrame):
+
+    unlabeled_generator = ImageDataGenerator(
+        preprocessing_function=preprocessing_function,
+        rescale=1 / 255)
+
+    unlabeled_generator = unlabeled_generator.flow_from_dataframe(
+        dataframe=unlabeled,
+        # directory="./train/",
+        x_col="path",
+        y_col="label",
+        subset="training",
+        # batch_size=32,
+        # seed=42,
+        # target_size=(32, 32),
+        shuffle=True,
+        class_mode="categorical",
+        target_size=(IMG_SIZE, IMG_SIZE),
+        batch_size=BATCH_SIZE,
+        classes=CLASSES
+    )
+    return unlabeled_generator
 
 
 
