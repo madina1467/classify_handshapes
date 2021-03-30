@@ -52,6 +52,40 @@ def run_model(
 
     return history  # type: ignore
 
+
+def resume_training(
+        checkpoint:str,
+        model_name: str,
+        hist_path: str,
+        # model_function: Model,
+        n_epochs, n_workers, patience,
+        train_generator: Iterator,
+        validation_generator: Iterator,
+        test_generator: Iterator,) -> History:
+    callbacks = get_callbacks(model_name, patience)
+    model = load_model('models/'+checkpoint)
+
+    history = model.fit_generator(
+        train_generator,
+        epochs=n_epochs,
+        validation_data=validation_generator,
+        callbacks=callbacks,
+        steps_per_epoch=len(train_generator) // BATCH_SIZE,
+        validation_steps=len(validation_generator) // BATCH_SIZE,
+        workers=n_workers  # TODO adjust this according to the number of CPU cores of your machine
+    )
+
+    model.evaluate_generator(
+        test_generator, len(test_generator) // BATCH_SIZE,
+    )
+
+    save_history(hist_path, history)
+    save_plot_history(hist_path)
+    plot_acc(hist_path)
+
+    return history  # type: ignore
+
+
 def done_function(fileName, toSave):
     with open(fileName, 'wb') as f:
         np.save(f, toSave)
