@@ -4,7 +4,7 @@ import sys
 
 from os import path
 from keras.preprocessing.image import ImageDataGenerator
-from data.const import IMG_SIZE, BATCH_SIZE, CLASSES, SYS_PATH
+from data.const import IMG_SIZE, BATCH_SIZE, CLASSES, SYS_PATH, STUDENT_ANNOTATIONS
 from data.randaugment import Rand_Augment
 
 from PIL import Image
@@ -24,7 +24,7 @@ def loadTeacherDatabase():
 
 def loadStudentDatabase():
     # loadLabels() #TODO #FIX
-    train = pd.read_csv(r'../misc/student_train.csv', dtype=str, index_col=[0])
+    train = pd.read_csv(r'../misc/'+STUDENT_ANNOTATIONS, dtype=str, index_col=[0])
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
 
     return createGenerators(train, test, isTeacher=False)

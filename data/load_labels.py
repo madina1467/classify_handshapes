@@ -59,21 +59,24 @@ def getStudentAnnotations():
     #     test = pd.read_csv(r'../misc/test.csv', index_col=[0])
     # else:
     print('getStudentAnnotations(): Start reading train/test files')
-    file = './train/results/labeling/' + ITERATION + '_' + LAST_TEACHER_MODEL_NAME + '_teacher_unlabeled_result.csv'
+    file = 'train/results/labeling/' + ITERATION + '_' + LAST_TEACHER_MODEL_NAME + '_teacher_unlabeled_result.csv'
     # train = pd.read_csv(file)
 
-    train = pd.read_csv(file, sep=",", header=0, names=["Filename", "Prediction", "PredPercent", "Prediction2", "PredPercent2", "Prediction3", "PredPercent3"])
+    train = pd.read_csv(os.path.join(SYS_PATH, file), sep=",", header=0, names=["Filename", "Prediction", "PredPercent", "Prediction2", "PredPercent2", "Prediction3", "PredPercent3"])
     train['PredPercent'] = pd.to_numeric(train['PredPercent'], downcast="float", errors='coerce')
-    train.drop(train[train.PredPercent < 0.3].index, inplace=True)
+
+    print(train.shape)
+    train.drop(train[train.PredPercent < 0.7].index, inplace=True)
+    print(train.shape)
     train.rename(columns={'Filename': 'path', 'Prediction': 'label'}, inplace=True)
     train.label = train.label + 1
     train.drop(["PredPercent", "Prediction2", "PredPercent2", "Prediction3", "PredPercent3"], axis=1, inplace=True)
 
-    test = pd.read_csv(r'./misc/test.csv', index_col=[0])
+    test = pd.read_csv(os.path.join(SYS_PATH, 'misc/test.csv'), index_col=[0])
 
     print('getStudentAnnotations(): End reading train/test files')
-
-    train.to_csv(r'./misc/student_train.csv')
+    print(train.shape)
+    train.to_csv(os.path.join(SYS_PATH, 'misc/student_train_drop_if<0.7.csv'))
         # test.to_csv(r'../misc/test.csv')
     return train, test
 

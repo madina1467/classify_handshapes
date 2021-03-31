@@ -142,11 +142,11 @@ def run_student_resume():
 
 
 if __name__ == '__main__':
-    # print('AA')
+    print('AA')
     # run()
     # test()
     # teacher_labeling()
     # save_label_results()
-    # run_student()
+    run_student()
     # run_student_resume()
 

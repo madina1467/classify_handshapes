@@ -5,13 +5,13 @@ __pycache__/
 
 # C extensions
 *.so
-
+misc/
 misc/old/test.csv
 misc/old/train.csv
 
 misc/train.csv
 misc/test.csv
-misc/student_train.csv
+misc/student_train_drop_if<0.3.csv
 ./old/
 
 train/logs/

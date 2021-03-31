@@ -32,6 +32,7 @@ HISTORY_NAME= MODEL_NAME+'HISTORY'
 WEIGHTS="noisy-student"
 PATIENCE=5
 ITERATION='1'
+STUDENT_ANNOTATIONS='student_train_drop_if<0.7.csv'
 
 if platform == "linux" or platform == "linux2":
     SYS_PATH = '/home/kenny/PycharmProjects/classify_handshapes' # linux

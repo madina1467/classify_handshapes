@@ -215,6 +215,7 @@ def plot_test_results(model: Model, evaluation):
 
 
 def plot_acc(hist_path):
+    plt.clf()
     with open(hist_path, 'rb') as f:
         hist = pickle.load(f)
     plt.plot(hist["acc"])
