@@ -148,5 +148,5 @@ if __name__ == '__main__':
     # teacher_labeling()
     # save_label_results()
     # run_student()
-    run_student_resume()
+    # run_student_resume()
 
