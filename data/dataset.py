@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import sys
 
 from os import path
-from keras.preprocessing.image import ImageDataGenerator
-from data.const import IMG_SIZE, BATCH_SIZE, CLASSES, SYS_PATH, STUDENT_ANNOTATIONS
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from data.const import IMG_SIZE, BATCH_SIZE, CLASSES, SYS_PATH, STUDENT_ANNOTATIONS, NEW_DATASET_ANNOTATIONS
 from data.randaugment import Rand_Augment
 
 from PIL import Image
@@ -28,6 +28,15 @@ def loadStudentDatabase():
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
 
     return createGenerators(train, test, isTeacher=False)
+
+
+def loadNewDatabase():
+    # loadLabels() #TODO #FIX
+    train = pd.read_csv(r'../misc/'+NEW_DATASET_ANNOTATIONS, dtype=str, index_col=[0])
+    test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
+
+    train.drop(train.filter(regex="Unname"), axis=1, inplace=True)
+    return createGenerators(train, test, isTeacher=True)
 
 def loadDatabaseUnlabeled():
     train = pd.read_csv(r'../misc/train.csv', dtype=str, index_col=[0])
@@ -94,7 +103,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
     test_generator = ImageDataGenerator(rescale=1.0 / 255)
     # visualize image augmentations
     # if visualize == True:
-    #     visualizeAugmentations(train_generator, pd.concat([train, test]))
+    #     visualizeAugmentations(train_generator, pd.concat([train, b5]))
 
 
     train_generator = train_generator.flow_from_dataframe(
@@ -106,8 +115,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
         shuffle=True,
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=BATCH_SIZE,
-        classes=CLASSES
+        batch_size=BATCH_SIZE
     )
 
     validation_generator = validation_generator.flow_from_dataframe(
@@ -118,8 +126,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
         shuffle=True,
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=BATCH_SIZE,
-        classes=CLASSES
+        batch_size=BATCH_SIZE
     )
 
     test_generator = test_generator.flow_from_dataframe(
@@ -130,7 +137,6 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE,
-        classes=CLASSES,
         to_fit=False
     )
     return train_generator, validation_generator, test_generator
@@ -202,4 +208,4 @@ def visualizeAugmentations(data_generator: ImageDataGenerator, df: pd.DataFrame)
     plt.close()
 
 
-# train, val, test = loadDatabase(True)
+# train, val, b5 = loadDatabase(True)

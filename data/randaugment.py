@@ -17,7 +17,7 @@ class Rand_Augment():
             self.max_Magnitude = max_Magnitude
         fillcolor = 128
         self.ranges = {
-            # these  Magnitude   range , you  must test  it  yourself , see  what  will happen  after these  operation ,
+            # these  Magnitude   range , you  must b5  it  yourself , see  what  will happen  after these  operation ,
             # it is no  need to obey  the value  in  autoaugment.py
             "shearX": np.linspace(0, 0.3, 10),
             "shearY": np.linspace(0, 0.3, 10),

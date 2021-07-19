@@ -31,12 +31,34 @@ def getCorrectID(value):
 #     return steps
 
 
+def getAnnotations():
+    if path.exists("../misc/new_train2.csv") and path.exists("../misc/all_test.csv"):
+        train = pd.read_csv(r'../misc/new_train2.csv', index_col=[0])
+        test = pd.read_csv(r'../misc/all_test2.csv', index_col=[0])
+    else:
+        print('getAllAnnotations(): Start reading train/b5 files AAAAAAAAAAAAAA')
+        train = pd.read_csv(TRAIN_PATH + 'new_dataset22.csv', sep=",", header=None, names=["path", "label"])
+        train.path = train.path.apply(
+            lambda x: x.replace('train_by_category/', # train_by_classes
+                                TRAIN_PATH))
+
+        test = pd.read_csv(TEST_PATH + '3359-ph2014-MS-handshape-annotations.txt', sep=" ", header=None, names=["path", "label"])
+        test.path = test.path.apply(lambda x: x.replace('images/', TEST_PATH))
+        test.label = test.label.apply(lambda x: getCorrectID(x))
+
+        print('getAllAnnotations(): End reading train/b5 files')
+
+        train.to_csv(r'../misc/new_train2.csv')
+        test.to_csv(r'../misc/all_test2.csv')
+    return train, test
+
+
 def getTeacherAnnotations():
     if path.exists("../misc/all_train.csv") and path.exists("../misc/all_test.csv"):
         train = pd.read_csv(r'../misc/all_train.csv', index_col=[0])
         test = pd.read_csv(r'../misc/all_test.csv', index_col=[0])
     else:
-        print('getAllAnnotations(): Start reading train/test files')
+        print('getAllAnnotations(): Start reading train/b5 files')
         train = pd.read_csv(TRAIN_PATH + '1miohands-v2-trainingalignment.txt', sep=" ", header=None, names=["path", "label"])
         train.path = train.path.apply(
             lambda x: x.replace('/work/cv2/koller/features/danish_nz_ph2014/hand.20151016/data/joint/',
@@ -46,7 +68,7 @@ def getTeacherAnnotations():
         test.path = test.path.apply(lambda x: x.replace('images/', TEST_PATH))
         test.label = test.label.apply(lambda x: getCorrectID(x))
 
-        print('getAllAnnotations(): End reading train/test files')
+        print('getAllAnnotations(): End reading train/b5 files')
 
         train.to_csv(r'../misc/all_train.csv')
         test.to_csv(r'../misc/all_test.csv')
@@ -54,11 +76,11 @@ def getTeacherAnnotations():
 
 
 def getStudentAnnotations():
-    # if path.exists("../misc/student_train.csv") and path.exists("../misc/test.csv"):
+    # if path.exists("../misc/student_train.csv") and path.exists("../misc/b5.csv"):
     #     train = pd.read_csv(r'../misc/student_train.csv', index_col=[0])
-    #     test = pd.read_csv(r'../misc/test.csv', index_col=[0])
+    #     b5 = pd.read_csv(r'../misc/b5.csv', index_col=[0])
     # else:
-    print('getStudentAnnotations(): Start reading train/test files')
+    print('getStudentAnnotations(): Start reading train/b5 files')
     file = 'train/results/labeling/' + ITERATION + '_' + LAST_TEACHER_MODEL_NAME + '_teacher_unlabeled_result.csv'
     # train = pd.read_csv(file)
 
@@ -72,12 +94,12 @@ def getStudentAnnotations():
     train.label = train.label + 1
     train.drop(["PredPercent", "Prediction2", "PredPercent2", "Prediction3", "PredPercent3"], axis=1, inplace=True)
 
-    test = pd.read_csv(os.path.join(SYS_PATH, 'misc/test.csv'), index_col=[0])
+    test = pd.read_csv(os.path.join(SYS_PATH, 'misc/b5.csv'), index_col=[0])
 
-    print('getStudentAnnotations(): End reading train/test files')
+    print('getStudentAnnotations(): End reading train/b5 files')
     print(train.shape)
     train.to_csv(os.path.join(SYS_PATH, 'misc/student_train_drop_if<0.7.csv'))
-        # test.to_csv(r'../misc/test.csv')
+        # b5.to_csv(r'../misc/b5.csv')
     return train, test
 
 def getLabelFromDF(df, path):
@@ -105,28 +127,28 @@ def loadTeacherLabels():
         train = pd.read_csv(r'../misc/train.csv', index_col=[0])
         test = pd.read_csv(r'../misc/test.csv', index_col=[0])
     else:
-        print('getLabels(): Starting creating new train/test files')
+        print('getLabels(): Starting creating new train/b5 files')
         all_train, all_test = getTeacherAnnotations()
 
         train, nf_train = createLabels(all_train, TRAIN_PATH)
         test, nf_test = createLabels(all_test, TEST_PATH)
 
-        print('getLabels(): End of creating new train/test files')
+        print('getLabels(): End of creating new train/b5 files')
 
         train.to_csv(r'../misc/train.csv')
-        test.to_csv(r'../misc/test.csv')
+        test.to_csv(r'../misc/b5.csv')
 
         print('!!NF TRAINTRAIN', nf_train)
         print('!!NF TESTTEST', nf_test)
 
-    # return train, test
+    # return train, b5
 
 def loadStudentLabels():
-    # if path.exists("../misc/student_train.csv") and path.exists("../misc/test.csv"):
+    # if path.exists("../misc/student_train.csv") and path.exists("../misc/b5.csv"):
     #     train = pd.read_csv(r'../misc/student_train.csv', index_col=[0])
-    #     test = pd.read_csv(r'../misc/test.csv', index_col=[0])
+    #     b5 = pd.read_csv(r'../misc/b5.csv', index_col=[0])
     # else:
-    print('loadStudentLabels(): Starting creating new train/test files')
+    print('loadStudentLabels(): Starting creating new train/b5 files')
     train, test = getStudentAnnotations()
 
     # print(train)
@@ -139,9 +161,14 @@ def checkTeacherClasses():
     print('!!AA train', train['label'].value_counts(ascending=True).sort_index())
     print('!!BB train', train['label'].nunique())
 
-    print('!!AA test', test['label'].value_counts(ascending=True).sort_index())
-    print('!!BB test', test['label'].nunique())
+    print('!!AA b5', test['label'].value_counts(ascending=True).sort_index())
+    print('!!BB b5', test['label'].nunique())
 
 # checkClasses()
 # loadLabels()
-loadStudentLabels()
+# loadStudentLabels()
+
+
+if __name__ == '__main__':
+    print('AA')
+    getAnnotations()

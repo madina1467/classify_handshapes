@@ -1,14 +1,21 @@
-import keras
+import tensorflow.keras
 import sys
-from keras import layers, Model
-from keras.utils import plot_model
+from tensorflow.keras import layers, Model, Sequential, Input
+from tensorflow.keras.activations import elu
+from tensorflow.keras.layers import GlobalAveragePooling2D, Dropout, Dense
+from tensorflow.keras.utils import plot_model
 
-from efficientnet.keras import EfficientNetB4
-from data.dataset import loadTeacherDatabase, loadTESTDatabase, loadDatabaseUnlabeled, loadStudentDatabase
+# from keras_radam import RAdam
+
+from efficientnet.tfkeras import EfficientNetB4, EfficientNetB5
+from data.dataset import loadTeacherDatabase, loadTESTDatabase, loadDatabaseUnlabeled, loadStudentDatabase, \
+    loadNewDatabase
 from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, UNFREEZE_LEARNING_RATE, \
     N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE, SYS_PATH
 from model_func import run_model, save_plot_history, plot_acc, test_model, teacher_predict_unlabeled, \
-    save_labeled_results, resume_training
+    save_labeled_results, resume_training, run_model2
+from group_norm import GroupNormalization
+from radam import RAdam
 
 sys.path.append(SYS_PATH)
 
@@ -17,7 +24,7 @@ def build_model(model_name, learning_rate, top_dropout_rate, num_classes, weight
 
     inputs = layers.Input(shape=(IMG_SIZE, IMG_SIZE, 3))
     # x = img_augmentation(inputs)
-    model = EfficientNetB4(include_top=False, input_tensor=inputs, weights=weights)
+    model = EfficientNetB5(include_top=False, input_tensor=inputs, weights=weights)
 
     # Freeze the pretrained weights
     model.trainable = False
@@ -34,8 +41,8 @@ def build_model(model_name, learning_rate, top_dropout_rate, num_classes, weight
     plot_model(model, to_file=PLOT_PATH + ".jpg", show_shapes=True)
 
     # Compile
-    model = keras.Model(inputs, outputs, name=model_name) #"EfficientNet"
-    optimizer = keras.optimizers.Adam(lr=learning_rate)
+    model = tensorflow.keras.Model(inputs, outputs, name=model_name) #"EfficientNet"
+    optimizer = tensorflow.keras.optimizers.Adam(lr=learning_rate)
     model.compile(
         optimizer=optimizer, loss="categorical_crossentropy", metrics=["accuracy"]
     )
@@ -44,6 +51,34 @@ def build_model(model_name, learning_rate, top_dropout_rate, num_classes, weight
 
     return model
 
+def build_model2(model_name, learning_rate, top_dropout_rate, num_classes, weights) -> Model:
+
+    effnet = EfficientNetB4(weights=None,
+                            include_top=False,
+                            input_shape=(IMG_SIZE, IMG_SIZE, 3))
+    effnet.load_weights('/media/kenny/Extra/models/efficientnet-b4_imagenet_1000_notop.h5')
+
+    ip = Input(shape=(IMG_SIZE, IMG_SIZE, 4))
+
+    for i, layer in enumerate(effnet.layers):
+        if "batch_normalization" in layer.name:
+            effnet.layers[i] = GroupNormalization(groups=32, axis=-1, epsilon=0.00001)
+            # model = Model(ip, x)
+
+    model = Sequential()
+    model.add(effnet)
+    model.add(GlobalAveragePooling2D())
+    model.add(Dropout(0.5))
+    model.add(Dense(5, activation=elu))
+    model.add(Dense(1, activation="linear"))
+    model.compile(loss='mse',
+                  optimizer=RAdam(lr=0.00005),
+                  metrics=['mse', 'acc'])
+    # print(model.summary())
+    # print('2!!!! AAAAAAAA')
+    # model.summary()
+
+    return model
 
 def unfreeze_model(model, learning_rate):
     # We unfreeze the top 20 layers while leaving BatchNorm layers frozen
@@ -56,15 +91,17 @@ def unfreeze_model(model, learning_rate):
         optimizer=optimizer, loss="categorical_crossentropy", metrics=["accuracy"]
     )
     print('3!!!! AAAAAAAA')
-    model.summary()
+    # model.summary()
     return model
 
 def run():
-    train_generator, validation_generator, test_generator = loadTeacherDatabase(False)
+    # train_generator, validation_generator, test_generator = loadTeacherDatabase(False)
+    train_generator, validation_generator, test_generator = loadNewDatabase() # run_new_dataset
 
     # with strategy.scope():
     model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)
-    model = unfreeze_model(model, UNFREEZE_LEARNING_RATE)
+    # model = unfreeze_model(model, UNFREEZE_LEARNING_RATE)
+    model.summary()
 
     eff_net_history = run_model(
         model_name=MODEL_NAME,
@@ -77,6 +114,27 @@ def run():
         test_generator=test_generator
     )
 
+
+def run2():
+    # train_generator, validation_generator, test_generator = loadTeacherDatabase(False)
+    train_generator, validation_generator, test_generator = loadNewDatabase() # run_new_dataset
+
+    # with strategy.scope():
+    model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)
+    # model = unfreeze_model(model, UNFREEZE_LEARNING_RATE)
+    model.summary()
+
+    eff_net_history = run_model(
+        model_name=MODEL_NAME,
+        hist_path=HIST_PATH,
+        model_function=model,
+        n_epochs=N_EPOCHS, n_workers=N_WORKERS,
+        patience=PATIENCE,
+        train_generator=train_generator,
+        validation_generator=validation_generator,
+        test_generator=test_generator
+    )
+    
 def test():
     test_generator = loadTESTDatabase(False)
     # TODO change it!!!!!!!
@@ -140,13 +198,37 @@ def run_student_resume():
         test_generator=test_generator
     )
 
+    def run_student_resume():
+        train_generator, validation_generator, test_generator = loadStudentDatabase()
+
+        # with strategy.scope():
+        # model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)
+        # model = unfreeze_model(model, UNFREEZE_LEARNING_RATE)
+
+        checkpoint = 'student_12_effnet_b4/student_12_effnet_b4_model.hdf5'
+
+        eff_net_history = resume_training(
+            checkpoint=checkpoint,
+            model_name=MODEL_NAME,
+            hist_path=HIST_PATH,
+            # model_function=model,
+            n_epochs=N_EPOCHS, n_workers=N_WORKERS,
+            patience=PATIENCE,
+            train_generator=train_generator,
+            validation_generator=validation_generator,
+            test_generator=test_generator
+        )
+    
+    
+
 
 if __name__ == '__main__':
     print('AA')
-    # run()
-    # test()
+    run()
+    # b5()
     # teacher_labeling()
     # save_label_results()
-    run_student()
+    # run_student()
     # run_student_resume()
+
 

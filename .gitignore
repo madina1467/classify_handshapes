@@ -51,7 +51,7 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Unit b5 / coverage reports
 htmlcov/
 .tox/
 .nox/
@@ -120,8 +120,12 @@ celerybeat.pid
 .env
 .venv
 .venv3.6_h
+.new_env/
+.nnvenv/
+.venv3.8/
 env/
 venv/
+.train/converted
 venv3.6_h/
 ENV/
 env.bak/
@@ -144,3 +148,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/nnvenv/
+/new_env/
+/venv3.8/
+/env/
+/venv/
+/train/converted
+/train/15_new_db_effnet_b5
+/train/all_training_logs_in_one_file.csv

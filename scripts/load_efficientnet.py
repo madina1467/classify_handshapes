@@ -21,7 +21,7 @@ import numpy as np
 
 import tensorflow as tf
 import efficientnet.keras
-from keras.layers import BatchNormalization, Conv2D, Dense
+from tensorflow.keras.layers import BatchNormalization, Conv2D, Dense
 
 
 def _get_model_by_name(name, *args, **kwargs):

@@ -9,14 +9,16 @@ import signal
 from functools import partial
 
 from typing import Iterator, List, Union
-from keras import Model
-from keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint, CSVLogger
-from keras.models import load_model
+from tensorflow.keras import Model
+from tensorflow.keras.callbacks import History, TensorBoard, EarlyStopping, ModelCheckpoint, CSVLogger, ReduceLROnPlateau
+from tensorflow.keras.models import load_model
 
 from data.const import BATCH_SIZE, SAVE_PERIOD, MODEL_PATH, LOG_PATH, PLOT_PATH, CLASSES, HIST_PLOT_PATH, SYS_PATH, \
     MODEL_NAME, ITERATION, LABELS_PATH, MODEL_CSV_HIST_PATH
 import os
 from os import path
+
+# from train.metric import Metrics
 
 sys.path.append(SYS_PATH)
 
@@ -42,9 +44,42 @@ def run_model(
         workers=n_workers  # TODO adjust this according to the number of CPU cores of your machine
     )
 
-    model.evaluate_generator(
-        test_generator, len(test_generator) // BATCH_SIZE,
+    # model.evaluate_generator(
+    #     test_generator, len(test_generator) // BATCH_SIZE,
+    # )
+
+    save_history(hist_path, history)
+    save_plot_history(hist_path)
+    plot_acc(hist_path)
+
+    return history  # type: ignore
+
+def run_model2(
+        model_name: str,
+        hist_path:str,
+        model_function: Model,
+        n_epochs, n_workers, patience,
+        train_generator: Iterator,
+        validation_generator: Iterator,
+        test_generator: Iterator,
+) -> History:
+    model = model_function
+
+    callbacks = get_callbacks2(model_name, patience, model, validation_generator)
+
+    history = model.fit_generator(
+        train_generator,
+        epochs=n_epochs,
+        validation_data=validation_generator,
+        callbacks=callbacks,
+        steps_per_epoch=len(train_generator) // BATCH_SIZE,
+        validation_steps=len(validation_generator) // BATCH_SIZE,
+        workers=n_workers  # TODO adjust this according to the number of CPU cores of your machine
     )
+
+    # model.evaluate_generator(
+    #     test_generator, len(test_generator) // BATCH_SIZE,
+    # )
 
     save_history(hist_path, history)
     save_plot_history(hist_path)
@@ -75,9 +110,9 @@ def resume_training(
         workers=n_workers  # TODO adjust this according to the number of CPU cores of your machine
     )
 
-    model.evaluate_generator(
-        test_generator, len(test_generator) // BATCH_SIZE,
-    )
+    # model.evaluate_generator(
+    #     test_generator, len(test_generator) // BATCH_SIZE,
+    # )
 
     save_history(hist_path, history)
     save_plot_history(hist_path)
@@ -206,8 +241,8 @@ def test_model(file_name, test_generator: Iterator):
 
 
 def plot_test_results(model: Model, evaluation):
-    key2name = {'acc': 'Accuracy', 'loss': 'Loss',
-                'val_acc': 'Validation Accuracy', 'val_loss': 'Validation Loss'}
+    key2name = {'accuracy': 'Accuracy', 'loss': 'Loss',
+                'val_accuracy': 'Validation Accuracy', 'val_loss': 'Validation Loss'}
     results = []
     for i, key in enumerate(model.metrics_names):
         results.append('%s = %.2f' % (key2name[key], evaluation[i]))
@@ -218,10 +253,10 @@ def plot_acc(hist_path):
     plt.clf()
     with open(hist_path, 'rb') as f:
         hist = pickle.load(f)
-    plt.plot(hist["acc"])
-    plt.plot(hist["val_acc"])
+    plt.plot(hist["accuracy"])
+    plt.plot(hist["val_accuracy"])
     # key2name = {'acc':'Accuracy', 'loss':'Loss',
-    #     'val_acc':'Validation Accuracy', 'val_loss':'Validation Loss'}
+    #     'val_accuracy':'Validation Accuracy', 'val_loss':'Validation Loss'}
     plt.title("model accuracy")
     plt.ylabel("accuracy")
     plt.xlabel("epoch")
@@ -233,12 +268,12 @@ def save_plot_history(hist_path):
     with open(hist_path, 'rb') as f:
         hist = pickle.load(f)
 
-    key_metrics = {'acc': 'Accuracy', 'loss': 'Loss',
-                'val_acc': 'Validation Accuracy', 'val_loss': 'Validation Loss'}
+    key_metrics = {'accuracy': 'Accuracy', 'loss': 'Loss',
+                'val_accuracy': 'Validation Accuracy', 'val_loss': 'Validation Loss'}
 
     fig = plt.figure()
 
-    metrics = ['acc', 'loss', 'val_acc', 'val_loss']
+    metrics = ['accuracy', 'loss', 'val_accuracy', 'val_loss']
     for i, metric in enumerate(metrics):
         trace = hist[metric]
         plt.subplot(2, 2, i + 1)
@@ -259,7 +294,7 @@ def get_callbacks(model_name: str, patience) -> List[Union[TensorBoard, EarlySto
     # use tensorboard --logdir logs/scalars in your command line to startup tensorboard with the correct logs
 
     early_stopping_callback = EarlyStopping(
-        monitor='val_acc',
+        monitor='val_accuracy',
         patience=patience,  # amount of epochs  with improvements worse than 1% until the model stops
         verbose=1,
         mode='max',
@@ -268,9 +303,9 @@ def get_callbacks(model_name: str, patience) -> List[Union[TensorBoard, EarlySto
 
     model_checkpoint_callback = ModelCheckpoint(
         MODEL_PATH,
-        monitor='val_acc',# acc, val_acc, loss, val_loss
+        monitor='val_accuracy',# acc, val_acc, loss, val_loss
         verbose=1,
-        save_best_only=True,  # TODO CHECK TRUE later, save the best model
+        save_best_only=False,  # TODO CHECK TRUE later, save the best model
         mode='max',
         save_weights_only=False,
         period=SAVE_PERIOD  # save every SAVE_PERIOD epoch
@@ -279,3 +314,106 @@ def get_callbacks(model_name: str, patience) -> List[Union[TensorBoard, EarlySto
     csv_logger = CSVLogger(MODEL_CSV_HIST_PATH, append=True)
 
     return [tensorboard_callback, early_stopping_callback, model_checkpoint_callback, csv_logger]
+
+
+def get_callbacks2(model_name: str, patience, model, val_generator) -> List[Union[TensorBoard, EarlyStopping, ModelCheckpoint]]:
+    logdir = (LOG_PATH)  # create a folder for each model.
+    tensorboard_callback = TensorBoard(log_dir=logdir)
+    # use tensorboard --logdir logs/scalars in your command line to startup tensorboard with the correct logs
+
+    # early_stopping_callback = EarlyStopping(
+    #     monitor='val_acc',
+    #     patience=patience,  # amount of epochs  with improvements worse than 1% until the model stops
+    #     verbose=1,
+    #     mode='max',
+    #     restore_best_weights=True,  # restore the best model with the lowest validation error
+    # )
+
+    model_checkpoint_callback = ModelCheckpoint(
+        MODEL_PATH,
+        monitor='val_accuracy',# acc, val_acc, loss, val_loss
+        verbose=1,
+        save_best_only=False,  # TODO CHECK TRUE later, save the best model
+        mode='max',
+        save_weights_only=False,
+        save_freq=SAVE_PERIOD  # save every SAVE_PERIOD epoch
+    )
+
+    csv_logger = CSVLogger(MODEL_CSV_HIST_PATH, append=True)
+
+    kappa_metrics = Metrics(model, val_generator)
+    # Monitor MSE to avoid overfitting and save best model
+    es = EarlyStopping(monitor='val_loss', mode='auto', verbose=1, patience=12)
+    rlr = ReduceLROnPlateau(monitor='val_loss',
+                            factor=0.5,
+                            patience=4,
+                            verbose=1,
+                            mode='auto',
+                            epsilon=0.0001)
+
+    return [tensorboard_callback, kappa_metrics, es, rlr, model_checkpoint_callback, csv_logger]
+
+
+import numpy as np
+from tensorflow.keras.callbacks import Callback
+from sklearn.metrics import cohen_kappa_score
+
+from data.const import BATCH_SIZE, MODEL_NAME
+
+
+def get_preds_and_labels(model, generator):
+    """
+    Get predictions and labels from the generator
+
+    :param model: A Keras model object
+    :param generator: A Keras ImageDataGenerator object
+
+    :return: A tuple with two Numpy Arrays. One containing the predictions
+    and one containing the labels
+    """
+    preds = []
+    labels = []
+    for _ in range(int(np.ceil(generator.samples / BATCH_SIZE))):
+        x, y = next(generator)
+        preds.append(model.predict(x))
+        labels.append(y)
+    # Flatten list of numpy arrays
+    return np.concatenate(preds).ravel(), np.concatenate(labels).ravel()
+
+
+class Metrics(Callback):
+    """
+    A custom Keras callback for saving the best model
+    according to the Quadratic Weighted Kappa (QWK) metric
+    """
+
+    def __init__(self, model, val_generator):
+        """ Save params in constructor
+        """
+        self.model = model
+        self.val_generator = val_generator
+
+    def on_train_begin(self, logs={}):
+        """
+        Initialize list of QWK scores on validation data
+        """
+        self.val_kappas = []
+
+    def on_epoch_end(self, epoch, logs={}):
+        """
+        Gets QWK score on the validation data
+
+        :param epoch: The current epoch number
+        """
+        # Get predictions and convert to integers
+        y_pred, labels = get_preds_and_labels(self.model, self.val_generator)
+        y_pred = np.rint(y_pred).astype(np.uint8).clip(0, 4)
+        # We can use sklearns implementation of QWK straight out of the box
+        # as long as we specify weights as 'quadratic'
+        _val_kappa = cohen_kappa_score(labels, y_pred, weights='quadratic')
+        self.val_kappas.append(_val_kappa)
+        print(f"val_kappa: {round(_val_kappa, 4)}")
+        if _val_kappa == max(self.val_kappas):
+            print("Validation Kappa has improved. Saving model.")
+            self.model.save(MODEL_NAME)
+        return

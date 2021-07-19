@@ -11,7 +11,7 @@ if os.environ.get('TF_KERAS'):
     from tensorflow.keras.models import load_model
 else:
     import efficientnet.keras as efn
-    from keras.models import load_model
+    from tensorflow.keras.models import load_model
 
 PANDA_PATH = 'misc/panda.jpg'
 

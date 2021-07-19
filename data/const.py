@@ -16,27 +16,28 @@ from sys import platform
 # | EfficientNetB6 | 528 |
 # | EfficientNetB7 | 600 |
 
-NUM_CLASSES_TRAIN = 60
-NUM_CLASSES_TEST = 60
-IMG_SIZE = 380 #b4
-BATCH_SIZE = 16 # TODO increase or decrease to fit your GPU
+NUM_CLASSES_TRAIN = 36
+NUM_CLASSES_TEST = 36
+IMG_SIZE = 456#380 #b4
+BATCH_SIZE = 8 # TODO increase or decrease to fit your GPU
 SAVE_PERIOD = 1
 LEARNING_RATE=1e-2 #0.5
 UNFREEZE_LEARNING_RATE=1e-4
-N_EPOCHS=30
+N_EPOCHS=100
 N_WORKERS=1 #0
 TOP_DROPOUT_RATE=0.2
-LAST_TEACHER_MODEL_NAME='12_effnet_b4'
-MODEL_NAME='student_12_effnet_b4_21'
+LAST_TEACHER_MODEL_NAME='20_new_db_effnet_b7'
+MODEL_NAME='20_new_db_effnet_b7'
 HISTORY_NAME= MODEL_NAME+'HISTORY'
 WEIGHTS="noisy-student"
-PATIENCE=5
+PATIENCE=50
 ITERATION='1'
 STUDENT_ANNOTATIONS='student_train_drop_if<0.7.csv'
+NEW_DATASET_ANNOTATIONS='new_train2.csv'
 
 if platform == "linux" or platform == "linux2":
     SYS_PATH = '/home/kenny/PycharmProjects/classify_handshapes' # linux
-    TRAIN_PATH = '/media/kenny/Extra/downloads/1mil/nds-v2-training/'
+    TRAIN_PATH = '/media/kenny/Extra/downloads/1mil/train_by_category/'#train_by_classes/' #nds-v2-training/'
     TEST_PATH = '/media/kenny/Extra/downloads/1mil/ph2014-dev-set-handshape-annotations/'
     LABELS_PATH = '/home/kenny/PycharmProjects/classify_handshapes/train/results/labeling/'
 elif platform == "darwin":
@@ -48,10 +49,10 @@ elif platform == "win32":
     TRAIN_PATH = ''
     TEST_PATH = ''
 
-CLASSES = [str(x) for x in np.arange(1, 61, 1).tolist()]
+CLASSES = [str(x) for x in np.arange(1, 36, 1).tolist()]
 
-SAVE_DIR = "models/"+MODEL_NAME
-RES_DIR = "results/"+MODEL_NAME
+SAVE_DIR = "/media/kenny/Extra/models/"+MODEL_NAME
+RES_DIR = "/media/kenny/Extra/results/"+MODEL_NAME
 LABELING_DIR = "results/labeling/"
 LOG_DIR = "logs/scalars/"
 WORK_DIR = "model_architecture"
@@ -72,7 +73,8 @@ if ~path.exists(RES_DIR):
     else:
         print ("Successfully created the directory %s " % RES_DIR)
 
-MODEL_PATH = os.path.join(SAVE_DIR, MODEL_NAME + "_model.hdf5")#"_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_acc:.2f}.hdf5")
+# MODEL_PATH = os.path.join(SAVE_DIR, MODEL_NAME + "_model.hdf5")#"_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_accuracy:.2f}.hdf5")
+MODEL_PATH = os.path.join(SAVE_DIR, MODEL_NAME + "_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_accuracy:.2f}.hdf5")
 MODEL_CSV_HIST_PATH = os.path.join(RES_DIR, HISTORY_NAME + "_log.csv")
 HIST_PATH = os.path.join(RES_DIR, HISTORY_NAME + ".kerashist")
 HIST_PLOT_PATH = os.path.join(RES_DIR, HISTORY_NAME)
