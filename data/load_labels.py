@@ -4,7 +4,8 @@ import os
 import sys
 
 from os import path
-from data.const import TRAIN_PATH, TEST_PATH, SYS_PATH, ITERATION, MODEL_NAME, LAST_TEACHER_MODEL_NAME
+from data.const import TRAIN_PATH, TEST_PATH, SYS_PATH, ITERATION, MODEL_NAME, LAST_TEACHER_MODEL_NAME, \
+    NEW_DATASET_ANNOTATIONS
 
 sys.path.append(SYS_PATH)
 
@@ -29,6 +30,34 @@ def getCorrectID(value):
 #         chunk_steps = math.ceil(len(df_chunk) / self.batch_size)
 #         steps += chunk_steps
 #     return steps
+
+def createNewLabels(path = '/media/kenny/Extra/downloads/1mil/train_by_columns'):
+    df = pd.DataFrame(columns=['path', 'label'])
+
+    for root, d_names, f_names in os.walk(path):
+        for f in f_names:
+            df = df.append({'path': os.path.join(root, f), 'label': root.rsplit('/', 1)[-1]}, ignore_index=True)
+    df = df.reset_index()
+    df = df.drop(['index'], axis=1)
+
+    return df
+
+def createAnnotation():
+    df = createNewLabels()
+    print('createAnnotation(): Start reading createAnnotation createAnnotation createAnnotation')
+    print(df)
+    df.to_csv(r'../misc/train'+NEW_DATASET_ANNOTATIONS)
+
+
+    test = pd.read_csv(TEST_PATH + '3359-ph2014-MS-handshape-annotations.txt', sep=" ", header=None,
+                       names=["path", "label"])
+    test.path = test.path.apply(lambda x: x.replace('images/', TEST_PATH))
+    test.label = test.label.apply(lambda x: getCorrectID(x))
+
+    print('getAllAnnotations(): End reading train/b5 files')
+    test.to_csv(r'../misc/test'+NEW_DATASET_ANNOTATIONS)
+
+
 
 
 def getAnnotations():
@@ -171,4 +200,6 @@ def checkTeacherClasses():
 
 if __name__ == '__main__':
     print('AA')
-    getAnnotations()
+    # getAnnotations()
+
+    createAnnotation()
