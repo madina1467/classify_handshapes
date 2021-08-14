@@ -1,7 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-
+import split_folders
+import os
 from os import path
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from data.const import IMG_SIZE, BATCH_SIZE, CLASSES, SYS_PATH, STUDENT_ANNOTATIONS, NEW_DATASET_ANNOTATIONS
@@ -81,6 +82,11 @@ def preprocessing_function(image):
 
 def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
 
+    main_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new'
+    output_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new_output'
+
+    split_folders.ratio(main_dir, output=output_dir, seed=1337, ratio=(.8, .2))
+
     if isTeacher:
         train_generator = ImageDataGenerator(
         rescale=1.0 / 255,
@@ -91,7 +97,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
         shear_range=0.1,
         zoom_range=[0.75, 1],
         horizontal_flip=True,
-        validation_split=0.25
+        # validation_split=0.25
         )
     else: #FOR STUDENT
         train_generator = ImageDataGenerator(
@@ -99,30 +105,25 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
             rescale=1.0 / 255,
             validation_split=0.25
         )
-    validation_generator = ImageDataGenerator(rescale=1.0 / 255, validation_split=0.25)  # except for rescaling, no augmentations are needed for validation and testing generators
+    validation_generator = ImageDataGenerator(rescale=1.0 / 255,
+                                              # validation_split=0.25
+                                              )  # except for rescaling, no augmentations are needed for validation and testing generators
     test_generator = ImageDataGenerator(rescale=1.0 / 255)
     # visualize image augmentations
     # if visualize == True:
     #     visualizeAugmentations(train_generator, pd.concat([train, b5]))
 
 
-    train_generator = train_generator.flow_from_dataframe(
-        dataframe=train,
-        # directory="./train/",
-        x_col="path",
-        y_col="label",
-        subset="training",
+    train_generator = train_generator.flow_from_directory(
+        os.path.join(output_dir,'train'),
         shuffle=True,
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),
         batch_size=BATCH_SIZE
     )
 
-    validation_generator = validation_generator.flow_from_dataframe(
-        dataframe=train,
-        x_col="path",
-        y_col="label",
-        subset="validation",
+    validation_generator = validation_generator.flow_from_directory(
+        os.path.join(output_dir,'val'),
         shuffle=True,
         class_mode="categorical",
         target_size=(IMG_SIZE, IMG_SIZE),

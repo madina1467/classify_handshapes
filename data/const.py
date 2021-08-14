@@ -18,7 +18,7 @@ from sys import platform
 
 NUM_CLASSES_TRAIN = 9
 NUM_CLASSES_TEST = 9
-IMG_SIZE = 456#380 #b4
+IMG_SIZE = 456
 BATCH_SIZE = 8 # TODO increase or decrease to fit your GPU
 SAVE_PERIOD = 1
 LEARNING_RATE=1e-2 #0.5
@@ -26,11 +26,11 @@ UNFREEZE_LEARNING_RATE=1e-4
 N_EPOCHS=150
 N_WORKERS=1 #0
 TOP_DROPOUT_RATE=0.2
-LAST_TEACHER_MODEL_NAME='23_new_db_effnet_b7'
-MODEL_NAME='23_new_db_effnet_b7'
+LAST_TEACHER_MODEL_NAME='25_new_db_effnet_b7'
+MODEL_NAME='25_new_db_effnet_b7'
 HISTORY_NAME= MODEL_NAME+'HISTORY'
 WEIGHTS="noisy-student"
-PATIENCE=60
+PATIENCE=150
 ITERATION='1'
 STUDENT_ANNOTATIONS='student_train_drop_if<0.7.csv'
 NEW_DATASET_ANNOTATIONS='dataset_labels.csv'#'new_train2.csv'
