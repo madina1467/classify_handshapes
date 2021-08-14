@@ -32,7 +32,7 @@ def loadStudentDatabase():
 
 def loadNewDatabase():
     # loadLabels() #TODO #FIX
-    train = pd.read_csv(r'../misc/'+NEW_DATASET_ANNOTATIONS, dtype=str, index_col=[0])
+    train = pd.read_csv(r'../misc/train'+NEW_DATASET_ANNOTATIONS, dtype=str, index_col=[0])
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
 
     train.drop(train.filter(regex="Unname"), axis=1, inplace=True)
