@@ -11,7 +11,8 @@ from efficientnet.tfkeras import EfficientNetB4, EfficientNetB5
 from data.dataset import loadTeacherDatabase, loadTESTDatabase, loadDatabaseUnlabeled, loadStudentDatabase, \
     loadNewDatabase
 from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, UNFREEZE_LEARNING_RATE, \
-    N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE, SYS_PATH
+    N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE, SYS_PATH, \
+    N_EPOCHS_UNFREEZE
 from model_func import run_model, save_plot_history, plot_acc, test_model, teacher_predict_unlabeled, \
     save_labeled_results, resume_training, run_model2
 from group_norm import GroupNormalization
@@ -22,6 +23,9 @@ sys.path.append(SYS_PATH)
 def get_optimizer(learning_rate):
     # optimizer = tensorflow.keras.optimizers.Adam(lr=learning_rate) #old
     optimizer = tensorflow.keras.optimizers.SGD(lr=learning_rate)
+    # optimizer = tensorflow.keras.optimizers.SGD(learning_rate=0.1, momentum=0.9)
+    # optimizer = tensorflow.keras.optimizers.RMSprop(learning_rate=learning_rate)
+    # optimizer = tensorflow.keras.optimizers.Adadelta(learning_rate=0.001, rho=0.95, epsilon=1e-07)
     return optimizer
 
 def build_model(model_name, learning_rate, top_dropout_rate, num_classes, weights) -> Model:
@@ -96,7 +100,7 @@ def run():
         model_name=MODEL_NAME+'after_unfreeze',
         hist_path=HIST_PATH+'after_unfreeze',
         model_function=model,
-        n_epochs=20, n_workers=N_WORKERS,
+        n_epochs=N_EPOCHS_UNFREEZE, n_workers=N_WORKERS,
         patience=PATIENCE,
         train_generator=train_generator,
         validation_generator=validation_generator,
