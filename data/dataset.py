@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-import split_folders
+import splitfolders
 import os
 from os import path
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -85,7 +85,9 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
     main_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new'
     output_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new_output'
 
-    split_folders.ratio(main_dir, output=output_dir, seed=1337, ratio=(.8, .2))
+    # main_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/1'
+    # output_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/1_output'
+    # splitfolders.ratio(main_dir, output=output_dir, seed=1337, ratio=(.8, .2))
 
     if isTeacher:
         train_generator = ImageDataGenerator(
