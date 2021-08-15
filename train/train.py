@@ -5,7 +5,8 @@ from tensorflow.keras.activations import elu
 from tensorflow.keras.layers import GlobalAveragePooling2D, Dropout, Dense
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.models import load_model
-
+import os
+import tensorflow as tf
 # from keras_radam import RAdam
 
 from efficientnet.tfkeras import EfficientNetB4, EfficientNetB5
@@ -15,7 +16,7 @@ from data.const import IMG_SIZE, NUM_CLASSES_TRAIN, LEARNING_RATE, UNFREEZE_LEAR
     N_EPOCHS, N_WORKERS, TOP_DROPOUT_RATE, MODEL_NAME, HIST_PATH, PLOT_PATH, WEIGHTS, PATIENCE, SYS_PATH, \
     N_EPOCHS_UNFREEZE
 from model_func import run_model, save_plot_history, plot_acc, test_model, teacher_predict_unlabeled, \
-    save_labeled_results, resume_training, run_model2
+    save_labeled_results
 from group_norm import GroupNormalization
 from radam import RAdam
 
@@ -81,8 +82,9 @@ def run():
     train_generator, validation_generator, test_generator = loadNewDatabase() # run_new_dataset
 
     # with strategy.scope():
-    model = load_model('models/24_new_db_effnet_b7_epoch-08_val_loss-8.98_val_acc-0.03.hdf5')
-    # model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)
+    # model = load_model('models/24_new_db_effnet_b7_epoch-08_val_loss-8.98_val_acc-0.03.hdf5')
+    model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)
+    model.load_weights(tf.train.latest_checkpoint(os.path.dirname('models/24_new_db_effnet_b7_epoch-08_val_loss-8.98_val_acc-0.03.hdf5')))
     model.summary()
 
     eff_net_history = run_model(
