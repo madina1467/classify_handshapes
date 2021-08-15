@@ -44,8 +44,8 @@ def loadDatabaseUnlabeled():
     train_unlabeled = train[train.label == '0']
     return createTestGenerator(train_unlabeled, False, False)
 
-def loadTESTDatabase():
-    test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
+def loadTESTDatabase(tt = r'../misc/test.csv'):
+    test = pd.read_csv(tt, dtype=str, index_col=[0])
 
     return createTESTGenerators(test)
 

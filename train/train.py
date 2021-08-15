@@ -4,6 +4,7 @@ from tensorflow.keras import layers, Model, Sequential, Input
 from tensorflow.keras.activations import elu
 from tensorflow.keras.layers import GlobalAveragePooling2D, Dropout, Dense
 from tensorflow.keras.utils import plot_model
+from tensorflow.keras.models import load_model
 
 # from keras_radam import RAdam
 
@@ -80,7 +81,8 @@ def run():
     train_generator, validation_generator, test_generator = loadNewDatabase() # run_new_dataset
 
     # with strategy.scope():
-    model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)
+    model = load_model('models/24_new_db_effnet_b7_epoch-08_val_loss-8.98_val_acc-0.03.hdf5')
+    # model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)
     model.summary()
 
     eff_net_history = run_model(

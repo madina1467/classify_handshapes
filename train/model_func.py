@@ -54,72 +54,6 @@ def run_model(
 
     return history  # type: ignore
 
-def run_model2(
-        model_name: str,
-        hist_path:str,
-        model_function: Model,
-        n_epochs, n_workers, patience,
-        train_generator: Iterator,
-        validation_generator: Iterator,
-        test_generator: Iterator,
-) -> History:
-    model = model_function
-
-    callbacks = get_callbacks2(model_name, patience, model, validation_generator)
-
-    history = model.fit_generator(
-        train_generator,
-        epochs=n_epochs,
-        validation_data=validation_generator,
-        callbacks=callbacks,
-        steps_per_epoch=len(train_generator) // BATCH_SIZE,
-        validation_steps=len(validation_generator) // BATCH_SIZE,
-        workers=n_workers  # TODO adjust this according to the number of CPU cores of your machine
-    )
-
-    # model.evaluate_generator(
-    #     test_generator, len(test_generator) // BATCH_SIZE,
-    # )
-
-    save_history(hist_path, history)
-    save_plot_history(hist_path)
-    plot_acc(hist_path)
-
-    return history  # type: ignore
-
-
-def resume_training(
-        checkpoint:str,
-        model_name: str,
-        hist_path: str,
-        # model_function: Model,
-        n_epochs, n_workers, patience,
-        train_generator: Iterator,
-        validation_generator: Iterator,
-        test_generator: Iterator,) -> History:
-    callbacks = get_callbacks(model_name, patience)
-    model = load_model('models/'+checkpoint)
-
-    history = model.fit_generator(
-        train_generator,
-        epochs=n_epochs,
-        validation_data=validation_generator,
-        callbacks=callbacks,
-        steps_per_epoch=len(train_generator) // BATCH_SIZE,
-        validation_steps=len(validation_generator) // BATCH_SIZE,
-        workers=n_workers  # TODO adjust this according to the number of CPU cores of your machine
-    )
-
-    # model.evaluate_generator(
-    #     test_generator, len(test_generator) // BATCH_SIZE,
-    # )
-
-    save_history(hist_path, history)
-    save_plot_history(hist_path)
-    plot_acc(hist_path)
-
-    return history  # type: ignore
-
 
 def done_function(fileName, toSave):
     with open(fileName, 'wb') as f:
@@ -314,44 +248,6 @@ def get_callbacks(model_name: str, patience) -> List[Union[TensorBoard, EarlySto
     csv_logger = CSVLogger(MODEL_CSV_HIST_PATH, append=True)
 
     return [tensorboard_callback, early_stopping_callback, model_checkpoint_callback, csv_logger]
-
-
-def get_callbacks2(model_name: str, patience, model, val_generator) -> List[Union[TensorBoard, EarlyStopping, ModelCheckpoint]]:
-    logdir = (LOG_PATH)  # create a folder for each model.
-    tensorboard_callback = TensorBoard(log_dir=logdir)
-    # use tensorboard --logdir logs/scalars in your command line to startup tensorboard with the correct logs
-
-    # early_stopping_callback = EarlyStopping(
-    #     monitor='val_acc',
-    #     patience=patience,  # amount of epochs  with improvements worse than 1% until the model stops
-    #     verbose=1,
-    #     mode='max',
-    #     restore_best_weights=True,  # restore the best model with the lowest validation error
-    # )
-
-    model_checkpoint_callback = ModelCheckpoint(
-        MODEL_PATH,
-        monitor='val_accuracy',# acc, val_acc, loss, val_loss
-        verbose=1,
-        save_best_only=False,  # TODO CHECK TRUE later, save the best model
-        mode='max',
-        save_weights_only=False,
-        save_freq=SAVE_PERIOD  # save every SAVE_PERIOD epoch
-    )
-
-    csv_logger = CSVLogger(MODEL_CSV_HIST_PATH, append=True)
-
-    kappa_metrics = Metrics(model, val_generator)
-    # Monitor MSE to avoid overfitting and save best model
-    es = EarlyStopping(monitor='val_loss', mode='auto', verbose=1, patience=12)
-    rlr = ReduceLROnPlateau(monitor='val_loss',
-                            factor=0.5,
-                            patience=4,
-                            verbose=1,
-                            mode='auto',
-                            epsilon=0.0001)
-
-    return [tensorboard_callback, kappa_metrics, es, rlr, model_checkpoint_callback, csv_logger]
 
 
 import numpy as np
