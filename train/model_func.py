@@ -39,6 +39,8 @@ def run_model(
         epochs=n_epochs,
         validation_data=validation_generator,
         callbacks=callbacks,
+        steps_per_epoch=train_generator.samples // BATCH_SIZE,
+        validation_steps=validation_generator.samples // BATCH_SIZE,
         workers=n_workers  # TODO adjust this according to the number of CPU cores of your machine
     )
 
