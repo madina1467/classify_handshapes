@@ -34,13 +34,11 @@ def run_model(
     callbacks = get_callbacks(model_name, patience)
     model = model_function
 
-    history = model.fit_generator(
+    history = model.fit(
         train_generator,
         epochs=n_epochs,
         validation_data=validation_generator,
         callbacks=callbacks,
-        steps_per_epoch=len(train_generator) // BATCH_SIZE,
-        validation_steps=len(validation_generator) // BATCH_SIZE,
         workers=n_workers  # TODO adjust this according to the number of CPU cores of your machine
     )
 
