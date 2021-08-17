@@ -88,16 +88,16 @@ def run():
     model.load_weights('/media/kenny/Extra/models/28_b5_sgd_f24_08/28_b5_sgd_f24_08_epoch-22_val_loss-1.19_val_acc-0.62.hdf5')
     model.summary()
 
-    eff_net_history = run_model(
-        model_name=MODEL_NAME,
-        hist_path=HIST_PATH,
-        model_function=model,
-        n_epochs=N_EPOCHS, n_workers=N_WORKERS,
-        patience=PATIENCE,
-        train_generator=train_generator,
-        validation_generator=validation_generator,
-        test_generator=test_generator
-    )
+    # eff_net_history = run_model(
+    #     model_name=MODEL_NAME,
+    #     hist_path=HIST_PATH,
+    #     model_function=model,
+    #     n_epochs=N_EPOCHS, n_workers=N_WORKERS,
+    #     patience=PATIENCE,
+    #     train_generator=train_generator,
+    #     validation_generator=validation_generator,
+    #     test_generator=test_generator
+    # )
 
     model = unfreeze_model(model, UNFREEZE_LEARNING_RATE)
 
