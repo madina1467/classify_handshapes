@@ -26,8 +26,8 @@ def get_optimizer(learning_rate):
     # optimizer = tensorflow.keras.optimizers.Adam(lr=learning_rate) #old
     # optimizer = tensorflow.keras.optimizers.SGD(lr=learning_rate, decay=1e-6, momentum=0.9, nesterov=True)
     # optimizer = tensorflow.keras.optimizers.SGD(learning_rate=0.1, momentum=0.9)
-    optimizer = tensorflow.keras.optimizers.RMSprop(learning_rate=learning_rate)
-    # optimizer = SGD(lr=learning_rate, momentum=0.9, decay=learning_rate / N_EPOCHS)
+    # optimizer = tensorflow.keras.optimizers.RMSprop(learning_rate=learning_rate)
+    optimizer = tensorflow.keras.optimizers.SGD(lr=learning_rate, momentum=0.9, decay=learning_rate / N_EPOCHS)
     # optimizer = tensorflow.keras.optimizers.Adadelta(learning_rate=0.001, rho=0.95, epsilon=1e-07)
     return optimizer
 
