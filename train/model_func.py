@@ -28,8 +28,7 @@ def run_model(
         model_function: Model,
         n_epochs, n_workers, patience,
         train_generator: Iterator,
-        validation_generator: Iterator,
-        test_generator: Iterator,
+        validation_generator: Iterator
 ) -> History:
     callbacks = get_callbacks(model_name, patience)
     model = model_function

@@ -108,8 +108,7 @@ def run():
         n_epochs=N_EPOCHS_UNFREEZE, n_workers=N_WORKERS,
         patience=PATIENCE,
         train_generator=train_generator,
-        validation_generator=validation_generator,
-        test_generator=test_generator
+        validation_generator=validation_generator
     )
 
     
