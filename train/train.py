@@ -85,7 +85,7 @@ def run():
     # with strategy.scope():
     # model = load_model('models/24_new_db_effnet_b7_epoch-08_val_loss-8.98_val_acc-0.03.hdf5')
     model = build_model(MODEL_NAME, LEARNING_RATE, TOP_DROPOUT_RATE, NUM_CLASSES_TRAIN, WEIGHTS)
-    model.load_weights('/media/kenny/Extra/models/28_b5_sgd_f24_08/28_b5_sgd_f24_08_epoch-22_val_loss-1.19_val_acc-0.62.hdf5')
+    model.load_weights('/media/kenny/Extra/models/33_3_b5_f3211_sgdDlrNE_f2822_f2408/33_3_b5_f3211_sgdDlrNE_f2822_f2408_epoch-100_val_loss-0.73_val_acc-0.76.hdf5')
     model.summary()
 
     # eff_net_history = run_model(
