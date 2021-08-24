@@ -21,23 +21,23 @@ def loadTeacherDatabase():
     train_labeled = train[train.label != 0]
     train_unlabeled = train[train.label == 0]
 
-    return createGenerators(train_labeled, test, isTeacher=True)
+    return createGenerators()
 
 def loadStudentDatabase():
     # loadLabels() #TODO #FIX
     train = pd.read_csv(r'../misc/'+STUDENT_ANNOTATIONS, dtype=str, index_col=[0])
     test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
 
-    return createGenerators(train, test, isTeacher=False)
+    return createGenerators()
 
 
 def loadNewDatabase():
     # loadLabels() #TODO #FIX
-    train = pd.read_csv(r'../misc/train'+NEW_DATASET_ANNOTATIONS, dtype=str, index_col=[0])
-    test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
-
-    train.drop(train.filter(regex="Unname"), axis=1, inplace=True)
-    return createGenerators(train, test, isTeacher=True)
+    # train = pd.read_csv(r'../misc/train'+NEW_DATASET_ANNOTATIONS, dtype=str, index_col=[0])
+    # test = pd.read_csv(r'../misc/test.csv', dtype=str, index_col=[0])
+    #
+    # train.drop(train.filter(regex="Unname"), axis=1, inplace=True)
+    return createGenerators()
 
 def loadDatabaseUnlabeled():
     train = pd.read_csv(r'../misc/train.csv', dtype=str, index_col=[0])
@@ -80,41 +80,27 @@ def preprocessing_function(image):
     image = np.array(randaugment(image))
     return image.astype(np.float64)
 
-def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
+def createGenerators():
 
-    main_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new'
-    output_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new_output'
+    # main_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new'
+    # output_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new_output'
 
-    # main_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/1'
-    # output_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/1_output'
-    # splitfolders.ratio(main_dir, output=output_dir, seed=1337, ratio=(.8, .2))
+    main_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/1'
+    output_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/1_output'
+    splitfolders.ratio(main_dir, output=output_dir, seed=1337, ratio=(.8, .2))
 
-    if isTeacher:
-        train_generator = ImageDataGenerator(
-        rescale=1.0 / 255,
-        rotation_range=5,
-        width_shift_range=0.1,
-        height_shift_range=0.1,
-        brightness_range=(0.75, 1),
-        shear_range=0.1,
-        zoom_range=[0.75, 1],
-        horizontal_flip=True,
-        # validation_split=0.25
-        )
-    else: #FOR STUDENT
-        train_generator = ImageDataGenerator(
-            preprocessing_function=preprocessing_function,
-            rescale=1.0 / 255,
-            validation_split=0.25
-        )
-    validation_generator = ImageDataGenerator(rescale=1.0 / 255,
-                                              # validation_split=0.25
-                                              )  # except for rescaling, no augmentations are needed for validation and testing generators
-    test_generator = ImageDataGenerator(rescale=1.0 / 255)
-    # visualize image augmentations
-    # if visualize == True:
-    #     visualizeAugmentations(train_generator, pd.concat([train, b5]))
 
+    train_generator = ImageDataGenerator(
+    rescale=1.0 / 255,
+    rotation_range=5,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    brightness_range=(0.75, 1),
+    shear_range=0.1,
+    zoom_range=[0.75, 1],
+    horizontal_flip=True,
+    )
+    validation_generator = ImageDataGenerator(rescale=1.0 / 255)  # except for rescaling, no augmentations are needed for validation and testing generators
 
     train_generator = train_generator.flow_from_directory(
         os.path.join(output_dir,'train'),
@@ -132,17 +118,7 @@ def createGenerators(train: pd.DataFrame, test: pd.DataFrame, isTeacher):
         batch_size=BATCH_SIZE
     )
 
-    test_generator = test_generator.flow_from_dataframe(
-        dataframe=test,
-        x_col="path",
-        y_col="label",
-        shuffle=False,
-        class_mode="categorical",
-        target_size=(IMG_SIZE, IMG_SIZE),
-        batch_size=BATCH_SIZE,
-        to_fit=False
-    )
-    return train_generator, validation_generator, test_generator
+    return train_generator, validation_generator
 
 
 def createTESTGenerators(test: pd.DataFrame):

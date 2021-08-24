@@ -80,7 +80,7 @@ def unfreeze_model(model, learning_rate):
 
 def run():
     # train_generator, validation_generator, test_generator = loadTeacherDatabase(False)
-    train_generator, validation_generator, test_generator = loadNewDatabase() # run_new_dataset
+    train_generator, validation_generator = loadNewDatabase() # run_new_dataset
 
     # with strategy.scope():
     # model = load_model('models/24_new_db_effnet_b7_epoch-08_val_loss-8.98_val_acc-0.03.hdf5')
