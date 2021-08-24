@@ -16,8 +16,8 @@ from sys import platform
 # | EfficientNetB6 | 528 |
 # | EfficientNetB7 | 600 |
 
-NUM_CLASSES_TRAIN = 9
-NUM_CLASSES_TEST = 9
+NUM_CLASSES_TRAIN = 6
+NUM_CLASSES_TEST = 6
 IMG_SIZE = 456
 BATCH_SIZE = 32 # TODO increase or decrease to fit your GPU
 SAVE_PERIOD = 1

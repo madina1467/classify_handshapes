@@ -87,7 +87,7 @@ def createGenerators():
 
     main_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/1'
     output_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/1_output'
-    splitfolders.ratio(main_dir, output=output_dir, seed=1337, ratio=(.8, .2))
+    # splitfolders.ratio(main_dir, output=output_dir, seed=1337, ratio=(.8, .2))
 
 
     train_generator = ImageDataGenerator(
