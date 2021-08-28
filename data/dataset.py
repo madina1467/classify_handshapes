@@ -85,8 +85,8 @@ def createGenerators():
     # main_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new'
     # output_dir = '/media/kenny/Extra/downloads/1mil/train_by_columns_new_output'
 
-    main_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/2'
-    output_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/2_output'
+    main_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/3'
+    output_dir = '/media/kenny/Extra/downloads/1mil/train_cat_cols/3_output'
     splitfolders.ratio(main_dir, output=output_dir, seed=1337, ratio=(.8, .2))
 
 
