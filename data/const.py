@@ -4,6 +4,8 @@ import os
 from os import path
 from datetime import datetime
 from sys import platform
+import errno
+
 #
 # | Base model | resolution|
 # |----------------|-----|
@@ -16,8 +18,8 @@ from sys import platform
 # | EfficientNetB6 | 528 |
 # | EfficientNetB7 | 600 |
 
-NUM_CLASSES_TRAIN = 6
-NUM_CLASSES_TEST = 6
+NUM_CLASSES_TRAIN = 3
+NUM_CLASSES_TEST = 3
 IMG_SIZE = 456
 BATCH_SIZE = 32 # TODO increase or decrease to fit your GPU
 SAVE_PERIOD = 1
@@ -26,8 +28,8 @@ UNFREEZE_LEARNING_RATE=1e-4
 N_EPOCHS=100
 N_WORKERS=0 #0
 TOP_DROPOUT_RATE=0.2
-LAST_TEACHER_MODEL_NAME='33_3_c3_b5_f3211_sgdDlrNE_f2822_f2408'
-MODEL_NAME='33_3_c3_b5_f3211_sgdDlrNE_f2822_f2408'
+LAST_TEACHER_MODEL_NAME='11_f333_b5_sgdDlrNE'
+MODEL_NAME='11_f333_b5_sgdDlrNE'
 HISTORY_NAME= MODEL_NAME+'HISTORY'
 WEIGHTS="noisy-student"
 PATIENCE=80
@@ -52,27 +54,38 @@ elif platform == "win32":
 
 CLASSES = [str(x) for x in np.arange(1, NUM_CLASSES_TRAIN, 1).tolist()]
 
-SAVE_DIR = "/media/kenny/Extra/models/"+MODEL_NAME
-RES_DIR = "/media/kenny/Extra/results/"+MODEL_NAME
+SAVE_DIR = "/media/kenny/Extra/models/categories/1/1_1/"+MODEL_NAME
+RES_DIR = "/media/kenny/Extra/results/categories/1/1_1/"+MODEL_NAME
 LABELING_DIR = "results/labeling/"
 LOG_DIR = "logs/scalars/"
 WORK_DIR = "model_architecture"
 
 if ~path.exists(SAVE_DIR):
     try:
-        os.mkdir(SAVE_DIR)
-    except OSError:
-        print ("Creation of the directory %s failed" % SAVE_DIR)
+        os.makedirs(SAVE_DIR, exist_ok=True)
+    except OSError as exc:  # Python ≥ 2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(SAVE_DIR):
+            pass
+        # possibly handle other errno cases here, otherwise finally:
+        else:
+            print ("Creation of the directory %s failed" % SAVE_DIR)
+            raise
     else:
         print ("Successfully created the directory %s " % SAVE_DIR)
 
 if ~path.exists(RES_DIR):
     try:
-        os.mkdir(RES_DIR)
-    except OSError:
-        print ("Creation of the directory %s failed" % RES_DIR)
+        os.makedirs(RES_DIR, exist_ok=True)
+
+    except OSError as exc:  # Python ≥ 2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(RES_DIR):
+            pass
+        # possibly handle other errno cases here, otherwise finally:
+        else:
+            print("Creation of the directory %s failed" % RES_DIR)
+            raise
     else:
-        print ("Successfully created the directory %s " % RES_DIR)
+        print("Successfully created the directory %s " % RES_DIR)
 
 # MODEL_PATH = os.path.join(SAVE_DIR, MODEL_NAME + "_model.hdf5")#"_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_accuracy:.2f}.hdf5")
 MODEL_PATH = os.path.join(SAVE_DIR, MODEL_NAME + "_epoch-{epoch:02d}_val_loss-{val_loss:.2f}_val_acc-{val_accuracy:.2f}.hdf5")
